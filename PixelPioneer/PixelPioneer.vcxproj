@@ -134,6 +134,7 @@
     <ClCompile Include="Graphics\shader.cpp" />
     <ClCompile Include="Graphics\material.cpp" />
     <ClCompile Include="Graphics\texturepack.cpp" />
+    <ClCompile Include="Graphics\texturepackRepository.cpp" />
     <ClCompile Include="Main\Debugger.cpp" />
     <ClCompile Include="Main\main.cpp" />
     <ClCompile Include="Graphics\glad.c" />

@@ -12,16 +12,34 @@ struct TexturePackManifest {
 };
 
 class Texturepack {
-	std::map<std::string, int> NameToIdMap;
+	std::map<std::string, int> nameToIdMap;
 	std::string name;
 	std::vector<GLMaterial*> materials;
 	int size;
 	GLuint* glTexId;
 
 public:
-	void SetTexturepack(TexturePackManifest& manifest);
-	void LoadTexturepack();
+	Texturepack();
+	void setTexturepack(TexturePackManifest& manifest);
+	void loadTexturepack();
 
 private:
+	void freeMaterials();
+	~Texturepack();
+};
 
+class TexturepackRepository {
+	int top = 0;
+	std::map<std::string, int> nameToIdMap;
+	std::map<int,Texturepack*> texturePackMap;
+
+public:
+	static TexturepackRepository* getInstance() { return &Instance; }
+	void addTexturepack(Texturepack* texturepack);
+	int findTexturepack(std::string name);
+	Texturepack* getTexturepack(int id);
+
+private:
+	static TexturepackRepository Instance;
+	void freeTexturepack(int id);
 };
