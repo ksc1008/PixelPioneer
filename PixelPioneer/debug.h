@@ -2,13 +2,11 @@
 #include<iostream>
 #include<string>
 
-#define DEBUG
-
-#ifdef DEBUG
+#ifdef _DEBUG
 #define writeLine(x) \
             _wl(__LINE__, __FILE__, __FUNCTION__, x)
 #else
-#define writeLine(x) nothing()
+#define writeLine(x) _nothing()
 #endif
 
 class Debugger {

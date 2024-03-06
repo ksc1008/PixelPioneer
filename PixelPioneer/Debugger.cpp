@@ -3,8 +3,8 @@
 Debugger Debugger::debuggerInstance;
 
 void Debugger::_wl(int line, const char* file, const char* function, std::string s) {
-	std::cout << "debug: " << s << "\nby " << function << " in " << file << ":" << line << "\n\n";
+	std::cout << "debug: " << s << "\n    by " << function << " in " << file << ":" << line << "\n";
 }
 void Debugger::_wl(int line, const char* file, const char* function, int integer) {
-	std::cout << "debug: " << integer << "\nby " << function << " in " << file << ":" << line << "\n\n";
+	std::cout << "debug: " << integer << "\n    by " << function << " in " << file << ":" << line << "\n";
 }
