@@ -1,8 +1,9 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include "graphics.h"
 #include<iostream>
+#include <glm/glm.hpp>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 class GLMaterial {
 private:

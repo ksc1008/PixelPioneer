@@ -104,11 +104,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -119,38 +122,52 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\glLoader.cpp" />
     <ClCompile Include="Graphics\glObject.cpp" />
+    <ClCompile Include="Graphics\meshPreset.cpp" />
     <ClCompile Include="Graphics\model.cpp" />
+    <ClCompile Include="Graphics\modelRepository.cpp" />
     <ClCompile Include="Graphics\shader.cpp" />
     <ClCompile Include="Graphics\material.cpp" />
+    <ClCompile Include="Graphics\testModel.cpp" />
+    <ClCompile Include="Graphics\testTexpack.cpp" />
     <ClCompile Include="Graphics\texturepack.cpp" />
     <ClCompile Include="Graphics\texturepackRepository.cpp" />
-    <ClCompile Include="Main\Debugger.cpp" />
+    <ClCompile Include="Debugger.cpp" />
     <ClCompile Include="Main\main.cpp" />
     <ClCompile Include="Graphics\glad.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\graphics.h" />
     <ClInclude Include="Graphics\material.h" />
+    <ClInclude Include="Graphics\mesh.h" />
     <ClInclude Include="Graphics\model.h" />
+    <ClInclude Include="Graphics\shader.h" />
     <ClInclude Include="Graphics\texturepack.h" />
     <ClInclude Include="include\STB\stb_image.h" />
-    <ClInclude Include="Main\debug.h" />
+    <ClInclude Include="debug.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\cobblestone.png" />
     <Image Include="Textures\grass_carried.png" />
     <Image Include="Textures\stone.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\fragment.glsl" />
+    <None Include="Shaders\vertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
