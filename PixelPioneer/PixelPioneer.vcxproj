@@ -135,6 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics\voxelModel.cpp" />
     <ClCompile Include="Graphics\camera.cpp" />
     <ClCompile Include="Graphics\glLoader.cpp" />
     <ClCompile Include="Graphics\object.cpp" />
@@ -150,8 +151,11 @@
     <ClCompile Include="Main\main.cpp" />
     <ClCompile Include="Graphics\glad.c" />
     <ClCompile Include="Graphics\shaderLoader.cpp" />
+    <ClCompile Include="World\block.cpp" />
+    <ClCompile Include="World\chunk.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\voxelModel.h" />
     <ClInclude Include="Graphics\camera.h" />
     <ClInclude Include="Graphics\graphics.h" />
     <ClInclude Include="Graphics\material.h" />
@@ -163,6 +167,8 @@
     <ClInclude Include="include\STB\stb_image.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="Graphics\shaderLoader.h" />
+    <ClInclude Include="World\block.h" />
+    <ClInclude Include="World\chunk.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\cobblestone.png" />

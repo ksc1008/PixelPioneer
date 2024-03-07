@@ -23,7 +23,7 @@ class Texturepack {
 	std::string name;
 	std::vector<GLMaterial*> materials;
 	int size;
-	GLuint* glTexId;
+	GLuint glTexId;
 
 public:
 	Texturepack(TexturePackManifest& manifest);
