@@ -135,30 +135,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics\camera.cpp" />
     <ClCompile Include="Graphics\glLoader.cpp" />
-    <ClCompile Include="Graphics\glObject.cpp" />
+    <ClCompile Include="Graphics\object.cpp" />
     <ClCompile Include="Graphics\meshPreset.cpp" />
     <ClCompile Include="Graphics\model.cpp" />
     <ClCompile Include="Graphics\modelRepository.cpp" />
     <ClCompile Include="Graphics\shader.cpp" />
     <ClCompile Include="Graphics\material.cpp" />
-    <ClCompile Include="Graphics\testModel.cpp" />
     <ClCompile Include="Graphics\testTexpack.cpp" />
     <ClCompile Include="Graphics\texturepack.cpp" />
     <ClCompile Include="Graphics\texturepackRepository.cpp" />
     <ClCompile Include="Debugger.cpp" />
     <ClCompile Include="Main\main.cpp" />
     <ClCompile Include="Graphics\glad.c" />
+    <ClCompile Include="Graphics\shaderLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\camera.h" />
     <ClInclude Include="Graphics\graphics.h" />
     <ClInclude Include="Graphics\material.h" />
     <ClInclude Include="Graphics\mesh.h" />
     <ClInclude Include="Graphics\model.h" />
+    <ClInclude Include="Graphics\object.h" />
     <ClInclude Include="Graphics\shader.h" />
     <ClInclude Include="Graphics\texturepack.h" />
     <ClInclude Include="include\STB\stb_image.h" />
     <ClInclude Include="debug.h" />
+    <ClInclude Include="Graphics\shaderLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\cobblestone.png" />

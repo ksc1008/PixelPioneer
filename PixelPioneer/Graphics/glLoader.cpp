@@ -8,7 +8,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "texturepack.h"
 #include "mesh.h"
-#include "model.h"
+#include "object.h"
+#include <STB/stb_image.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -43,44 +44,50 @@ int initiateGL() {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+
+    stbi_set_flip_vertically_on_load(true);
+    //ShaderLoader::getInstance()->getDefaultShader();
     return 0;
 }
 
 int openWindow()
 {
-    GLModel* mdel;
-    GLShader* shader = new GLShader("shaders/vertex.glsl", "shaders/fragment.glsl");
-
-    mdel = new GLModel(TexturepackRepository::getInstance()->getTexturepack(0)->getTexture("grass"), createCubeWithOneFace());
+    GLObject* object = new GLObject("grass", "asdfd", glm::vec3(0, 0, 0));
+    GLObject* object2 = new GLObject("grass", "asdfd", glm::vec3(1.5f, 0, 0));
+    glEnable(GL_DEPTH_TEST);
 
     // uncomment this call to draw in wireframe polygons.
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // render loop
     // -----------
+    //ShaderLoader::getInstance()->getDefaultShader()->setInt("texture1", 0);
+    glActiveTexture(GL_TEXTURE0);
     while (!glfwWindowShouldClose(window))
     {
+        processInput(window);
+
         // input
         // -----
-        processInput(window);
 
         // render
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        shader->use();
+        ShaderLoader::getInstance()->getDefaultShader()->use();
+        ShaderLoader::getInstance()->getDefaultShader()->setViewTransform(glm::lookAt(glm::vec3(2, 2, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)));
+        ShaderLoader::getInstance()->getDefaultShader()->setProjTransform(
+            glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f));
 
-        shader->setInt("texture1", 0);
-
-        mdel->bindBuffer();
-        mdel->draw();
+        object->draw();
+        object2->draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    delete shader;
+    delete object;
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------

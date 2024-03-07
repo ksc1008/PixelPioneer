@@ -1,27 +1,35 @@
 #include "texturepack.h"
 #include "../debug.h"
 
-Texturepack::Texturepack(TexturePackManifest* manifest)
+Texturepack::Texturepack(TexturePackManifest& manifest)
 {
 	size = 0;
-	glTexId = nullptr;
+	glTexId = -1;
 	setTexturepack(manifest);
 }
 
-void Texturepack::setTexturepack(const TexturePackManifest* manifest)
+void Texturepack::setTexturepack(const TexturePackManifest& manifest)
 {
 	if (!materials.empty()) {
 		Debugger::getInstance()->writeLine("material already allocated. need to free exsistant materials.");
 		return;
 	}
 
-	glTexId = new GLuint[manifest->size];
-	glGenTextures(manifest->size, glTexId);
-	size = manifest->size;
-	name = manifest->name;
+	glGenTextures(1, &glTexId);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, glTexId);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY,
+		0,                // level
+		GL_RGBA,         // Internal format
+		16, 16, size, // width,height,depth
+		0,
+		GL_RGBA,          // format
+		GL_UNSIGNED_BYTE, // type
+		0);               // pointer to data
+	size = manifest.size;
+	name = manifest.name;
 	for (int i = 0; i < size; i++) {
-		nameToIdMap[manifest->textureNames[i]] = i;
-		GLMaterial* mat = new GLMaterial(manifest->texturePaths[i], glTexId[i]);
+		nameToIdMap[manifest.textureNames[i]] = i;
+		GLMaterial* mat = new GLMaterial(manifest.texturePaths[i], glTexId);
 		materials.push_back(mat);
 	}
 }

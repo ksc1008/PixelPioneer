@@ -4,8 +4,9 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <glm/gtc/type_ptr.hpp>
 
-GLShader::GLShader(const char* vertexPath, const char* fragmentPath)
+GLShader::GLShader(const std::string vertexPath, const std::string fragmentPath)
 {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
@@ -83,6 +84,19 @@ void GLShader::setInt(const std::string& name, int value) const
 void GLShader::setFloat(const std::string& name, float value) const
 {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+}
+
+void GLShader::setModelTransform(glm::mat4 transform) const
+{
+    glUniformMatrix4fv(glGetUniformLocation(ID, "model"), 1, GL_FALSE, glm::value_ptr(transform));
+}
+void GLShader::setViewTransform(glm::mat4 transform) const
+{
+    glUniformMatrix4fv(glGetUniformLocation(ID, "view"), 1, GL_FALSE, glm::value_ptr(transform));
+}
+void GLShader::setProjTransform(glm::mat4 transform) const
+{
+    glUniformMatrix4fv(glGetUniformLocation(ID, "projection"), 1, GL_FALSE, glm::value_ptr(transform));
 }
 
 void GLShader::checkCompileErrors(unsigned int shader, std::string type)

@@ -3,23 +3,15 @@
 #include "../debug.h"
 #define DEBUG
 
-GLModel::GLModel(GLMaterial* material, mesh* mesh)
+GLModel::GLModel(mesh* mesh)
 {
 	setMesh(mesh);
-	setMaterial(material);
-
-    Debugger::getInstance()->writeLine(m_mesh->verticesCount);
 }
 
 void GLModel::bindBuffer() {
-    glActiveTexture(GL_TEXTURE0);
-    m_material->bind();
     glBindVertexArray(VAO);
 }
 
-void GLModel::setMaterial(GLMaterial* mat) {
-	m_material = mat;
-}
 
 void GLModel::setMesh(mesh* mesh) {
 	m_mesh = mesh;
@@ -44,7 +36,8 @@ void GLModel::setMesh(mesh* mesh) {
     glBindVertexArray(0);
 }
 
-void GLModel::draw()
+void GLModel::drawMesh()
 {
     glDrawArrays(GL_TRIANGLES, 0, m_mesh->verticesCount);
 }
+

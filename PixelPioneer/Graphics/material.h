@@ -3,7 +3,6 @@
 #include<iostream>
 #include <glm/glm.hpp>
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 class GLMaterial {
 private:
@@ -14,8 +13,6 @@ private:
 	unsigned char* data;
 	bool loaded;
 
-
-
 	void discardTexture();
 
 	void generateTexture();
@@ -25,4 +22,6 @@ public:
 
 	void bind();
 	void loadTexture();
+
+	~GLMaterial();
 };

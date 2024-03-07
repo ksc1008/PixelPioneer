@@ -1,4 +1,7 @@
 #include "texturepack.h"
+#include "../debug.h"
+
+
 
 TexturepackRepository TexturepackRepository::Instance;
 
@@ -9,7 +12,21 @@ void TexturepackRepository::addTexturepack(Texturepack* texturepack)
 	top++;
 }
 
-void TexturepackRepository::addTexturepack(TexturePackManifest* manifest)
+GLMaterial* TexturepackRepository::findTexture(std::string name)
+{
+	GLMaterial* found = nullptr;
+	for (auto pack : texturePackMap) {
+		found = pack.second->getTexture(name);
+		if (found) {
+			return found;
+		}
+	}
+
+	Debugger::getInstance()->writeLine("can't find proper texturepack. returning null.");
+	return nullptr;
+}
+
+void TexturepackRepository::addTexturepack(TexturePackManifest& manifest)
 {
 	Texturepack* texturepack = new Texturepack(manifest);
 	texturepack->loadTexturepack();

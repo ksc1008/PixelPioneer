@@ -26,8 +26,9 @@ class Texturepack {
 	GLuint* glTexId;
 
 public:
-	Texturepack(TexturePackManifest* manifest);
-	void setTexturepack(const TexturePackManifest* manifest);
+	Texturepack(TexturePackManifest& manifest);
+
+	void setTexturepack(const TexturePackManifest& manifest);
 	void loadTexturepack();
 	void bindTexture(const std::string name);
 	GLMaterial* getTexture(int id);
@@ -44,11 +45,13 @@ class TexturepackRepository {
 	int top = 0;
 	std::map<std::string, int> nameToIdMap;
 	std::map<int,Texturepack*> texturePackMap;
+	static GLMaterial* defaultMat;
 
 public:
 	static TexturepackRepository* getInstance() { return &Instance; }
-	void addTexturepack(TexturePackManifest* manifest);
+	void addTexturepack(TexturePackManifest& manifest);
 	void addTexturepack(Texturepack* texturepack);
+	GLMaterial* findTexture(std::string name);
 	int findTexturepack(std::string name);
 	Texturepack* getTexturepack(int id);
 

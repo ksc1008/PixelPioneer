@@ -4,14 +4,18 @@
 #include "../include/STB/stb_image.h"
 #include "../debug.h"
 
+
 void GLMaterial::bind() {
+	if (!loaded) {
+		Debugger::getInstance()->writeLine("Texture not loaded. loading...");
+		loadTexture();
+	}
 	glBindTexture(GL_TEXTURE_2D, m_texId);
 }
 
 GLMaterial::GLMaterial(std::string path, GLuint id)
 {
 	this->path = path;
-	m_texId = 0;
 	loaded = false;
 	m_texId = id;
 }
@@ -25,7 +29,7 @@ void GLMaterial::loadTexture()
 	}
 
 	data = stbi_load(path.c_str(), &m_width, &m_height, &m_nrChannels, 0);
-	glBindTexture(GL_TEXTURE_2D, m_texId);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texId);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -40,6 +44,11 @@ void GLMaterial::loadTexture()
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+}
+
+GLMaterial::~GLMaterial()
+{
+	Debugger::getInstance()->writeLine("Destroying material.");
 }
 
 void GLMaterial::discardTexture()
