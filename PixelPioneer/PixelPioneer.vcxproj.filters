@@ -69,13 +69,16 @@
     <ClCompile Include="Graphics\camera.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="World\chunk.cpp">
+    <ClCompile Include="Voxel\chunk.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="World\block.cpp">
+    <ClCompile Include="Voxel\block.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\voxelModel.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Voxel\texture.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,13 +116,16 @@
     <ClInclude Include="Graphics\camera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="World\chunk.h">
+    <ClInclude Include="Voxel\chunk.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="World\block.h">
+    <ClInclude Include="Voxel\block.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\voxelModel.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel\texture.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

@@ -151,8 +151,9 @@
     <ClCompile Include="Main\main.cpp" />
     <ClCompile Include="Graphics\glad.c" />
     <ClCompile Include="Graphics\shaderLoader.cpp" />
-    <ClCompile Include="World\block.cpp" />
-    <ClCompile Include="World\chunk.cpp" />
+    <ClCompile Include="Voxel\block.cpp" />
+    <ClCompile Include="Voxel\chunk.cpp" />
+    <ClCompile Include="Voxel\texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\voxelModel.h" />
@@ -167,8 +168,9 @@
     <ClInclude Include="include\STB\stb_image.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="Graphics\shaderLoader.h" />
-    <ClInclude Include="World\block.h" />
-    <ClInclude Include="World\chunk.h" />
+    <ClInclude Include="Voxel\block.h" />
+    <ClInclude Include="Voxel\chunk.h" />
+    <ClInclude Include="Voxel\texture.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\cobblestone.png" />
