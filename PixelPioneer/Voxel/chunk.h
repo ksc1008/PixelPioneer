@@ -1,41 +1,28 @@
 #pragma once
 #include "block.h"
+#include "voxelModel.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 class Chunk {
+	VoxelModel* m_model;
 public:
 	static const int CHUNK_SIZE = 16;
 	Chunk();
 	~Chunk();
 	void update(float dt);
 	void render();
-	static const int CHUNK_SIZE = 16;
+
+	void setBlock(int type, int x, int y, int z);
+	void setBlockEnabled(bool enabled, int x, int y, int z);
+	void bind();
 private: // The blocks data
 	Block*** m_pBlocks;
+	bool needRefresh = true;
+
 	void createMesh();
 
-	bool xOpaque;
-	bool yOpaque;
-	bool zOpaque;
+	bool checkAdjacent(int x, int y, int z, int face);
+	void addFace(int x, int y, int z, int face);
 };
 
-Chunk::Chunk() { // Create the blocks
-	m_pBlocks = new Block **[CHUNK_SIZE];
-	for (int i = 0; i < CHUNK_SIZE; i++) {
-		m_pBlocks[i] = new Block * [CHUNK_SIZE];
-		for (int j = 0; j < CHUNK_SIZE; j++) {
-			m_pBlocks[i][j] = new Block[CHUNK_SIZE];
-		}
-	}
-}
-
-Chunk::~Chunk() { // Delete the blocks
-	for (int i = 0; i < CHUNK_SIZE; ++i) {
-		for (int j = 0; j < CHUNK_SIZE; ++j) {
-			delete[] m_pBlocks[i][j];
-		}
-		delete[] m_pBlocks[i];
-	}
-	delete[] m_pBlocks;
-}

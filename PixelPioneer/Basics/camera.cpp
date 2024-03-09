@@ -3,7 +3,7 @@
 
 void Camera::applyViewMatrix()
 {
-
+	m_view = 
 }
 
 void Camera::applyProjectionMatrix()

@@ -135,19 +135,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Graphics\voxelModel.cpp" />
-    <ClCompile Include="Graphics\camera.cpp" />
+    <ClCompile Include="Basics\controller.cpp" />
+    <ClCompile Include="Debugger.cpp" />
+    <ClCompile Include="Graphics\material.cpp" />
+    <ClCompile Include="Voxel\primitives.cpp" />
+    <ClCompile Include="Voxel\voxelModel.cpp" />
+    <ClCompile Include="Basics\camera.cpp" />
     <ClCompile Include="Graphics\glLoader.cpp" />
     <ClCompile Include="Graphics\object.cpp" />
     <ClCompile Include="Graphics\meshPreset.cpp" />
     <ClCompile Include="Graphics\model.cpp" />
     <ClCompile Include="Graphics\modelRepository.cpp" />
     <ClCompile Include="Graphics\shader.cpp" />
-    <ClCompile Include="Graphics\material.cpp" />
     <ClCompile Include="Graphics\testTexpack.cpp" />
     <ClCompile Include="Graphics\texturepack.cpp" />
     <ClCompile Include="Graphics\texturepackRepository.cpp" />
-    <ClCompile Include="Debugger.cpp" />
     <ClCompile Include="Main\main.cpp" />
     <ClCompile Include="Graphics\glad.c" />
     <ClCompile Include="Graphics\shaderLoader.cpp" />
@@ -156,10 +158,11 @@
     <ClCompile Include="Voxel\texture.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Graphics\voxelModel.h" />
-    <ClInclude Include="Graphics\camera.h" />
-    <ClInclude Include="Graphics\graphics.h" />
     <ClInclude Include="Graphics\material.h" />
+    <ClInclude Include="Voxel\primitives.h" />
+    <ClInclude Include="Voxel\voxelModel.h" />
+    <ClInclude Include="Basics\camera.h" />
+    <ClInclude Include="Graphics\graphics.h" />
     <ClInclude Include="Graphics\mesh.h" />
     <ClInclude Include="Graphics\model.h" />
     <ClInclude Include="Graphics\object.h" />
@@ -178,8 +181,9 @@
     <Image Include="Textures\stone.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\fragment.glsl" />
+    <None Include="Shaders\voxel_fragment.glsl" />
     <None Include="Shaders\vertex.glsl" />
+    <None Include="Shaders\voxel_vertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

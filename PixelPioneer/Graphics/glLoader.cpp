@@ -6,10 +6,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "texturepack.h"
-#include "mesh.h"
-#include "object.h"
+#include "../Voxel/chunk.h"
 #include <STB/stb_image.h>
+#include "shaderLoader.h"
+#include "../Voxel/texture.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -52,9 +52,17 @@ int initiateGL() {
 
 int openWindow()
 {
-    GLObject* object = new GLObject("grass", "asdfd", glm::vec3(0, 0, 0));
-    GLObject* object2 = new GLObject("grass", "asdfd", glm::vec3(1.5f, 0, 0));
+    Chunk* ch = new Chunk();
+    ch->setBlock(0, 0, 0, 1);
+    ch->setBlock(1, 0, 0, 1);
+    ch->setBlock(1, 0, 0, 2);
+    ch->setBlock(1, 0, 1, 2);
+    ch->setBlock(1, 2, 0, 0);
+    VoxelTexture* vt = new VoxelTexture(*testManifest());
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    
 
     // uncomment this call to draw in wireframe polygons.
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -62,6 +70,7 @@ int openWindow()
     // render loop
     // -----------
     //ShaderLoader::getInstance()->getDefaultShader()->setInt("texture1", 0);
+    ch->update(0);
     glActiveTexture(GL_TEXTURE0);
     while (!glfwWindowShouldClose(window))
     {
@@ -76,18 +85,19 @@ int openWindow()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         ShaderLoader::getInstance()->getDefaultShader()->use();
-        ShaderLoader::getInstance()->getDefaultShader()->setViewTransform(glm::lookAt(glm::vec3(2, 2, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)));
+        ShaderLoader::getInstance()->getDefaultShader()->setViewTransform(glm::lookAt(glm::vec3(5, 4, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)));
         ShaderLoader::getInstance()->getDefaultShader()->setProjTransform(
             glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f));
-
-        object->draw();
-        object2->draw();
+        //ShaderLoader::getInstance()->getDefaultShader()->setInt("texArray", 1);
+        ch->bind();
+        vt->bindTextures();
+        ch->render();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    delete object;
+    delete ch;
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------

@@ -9,6 +9,6 @@ GLShader* ShaderLoader::getDefaultShader()
 
 void ShaderLoader::initialize()
 {
-	defaultShader = new GLShader("shaders/vertex.glsl", "shaders/fragment.glsl");
+	defaultShader = new GLShader("shaders/voxel_vertex.glsl", "shaders/voxel_fragment.glsl");
 	initialized = true;
 }
