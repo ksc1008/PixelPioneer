@@ -1,17 +1,10 @@
 #include "chunk.h"
+#include "../Graphics/shaderLoader.h"
+#include <glm/gtc/matrix_transform.hpp>
 
-Chunk::Chunk() { // Create the blocks
-	m_pBlocks = new Block * *[CHUNK_SIZE];
-	for (int i = 0; i < CHUNK_SIZE; i++) {
-		m_pBlocks[i] = new Block * [CHUNK_SIZE];
-		for (int j = 0; j < CHUNK_SIZE; j++) {
-			m_pBlocks[i][j] = new Block[CHUNK_SIZE];
-		}
-	}
-	m_model = new VoxelModel();
-}
 
-Chunk::~Chunk() { // Delete the blocks
+Chunk::Chunk(int x, int y, int z)
+{// Delete the blocks
 	for (int i = 0; i < CHUNK_SIZE; ++i) {
 		for (int j = 0; j < CHUNK_SIZE; ++j) {
 			delete[] m_pBlocks[i][j];
@@ -19,6 +12,15 @@ Chunk::~Chunk() { // Delete the blocks
 		delete[] m_pBlocks[i];
 	}
 	delete[] m_pBlocks;
+
+	m_chunkX = x;
+	m_chunkY = y;
+	m_chunkZ = z;
+
+	m_model = new VoxelModel();
+}
+
+Chunk::~Chunk() { 
 }
 
 void Chunk::update(float dt)
@@ -89,6 +91,8 @@ bool Chunk::checkAdjacent(int x, int y, int z, int face) {
 }
 
 void Chunk::render() {
+	ShaderLoader::getInstance()->getDefaultShader()->setModelTransform(glm::translate(glm::mat4(1.0f),
+		glm::vec3(CHUNK_SIZE * m_chunkX, CHUNK_SIZE * m_chunkY, CHUNK_SIZE * m_chunkZ)));
 	m_model->renderMesh();
 }
 

@@ -5,10 +5,11 @@
 #include <GLFW/glfw3.h>
 
 class Chunk {
+	int m_chunkX, m_chunkY, m_chunkZ;
 	VoxelModel* m_model;
 public:
 	static const int CHUNK_SIZE = 16;
-	Chunk();
+	Chunk(int x, int y, int z);
 	~Chunk();
 	void update(float dt);
 	void render();

@@ -109,7 +109,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;libnoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(ProjectDir)lib</AdditionalLibraryDirectories>
     </Link>
@@ -131,13 +131,15 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(ProjectDir)lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;libnoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Basics\controller.cpp" />
     <ClCompile Include="Debugger.cpp" />
     <ClCompile Include="Graphics\material.cpp" />
+    <ClCompile Include="Manager\controlManager.cpp" />
+    <ClCompile Include="noiseutils.cpp" />
     <ClCompile Include="Voxel\primitives.cpp" />
     <ClCompile Include="Voxel\voxelModel.cpp" />
     <ClCompile Include="Basics\camera.cpp" />
@@ -156,9 +158,12 @@
     <ClCompile Include="Voxel\block.cpp" />
     <ClCompile Include="Voxel\chunk.cpp" />
     <ClCompile Include="Voxel\texture.cpp" />
+    <ClCompile Include="World\world_generator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\material.h" />
+    <ClInclude Include="Manager\controlManager.h" />
+    <ClInclude Include="noiseutils.h" />
     <ClInclude Include="Voxel\primitives.h" />
     <ClInclude Include="Voxel\voxelModel.h" />
     <ClInclude Include="Basics\camera.h" />
@@ -174,6 +179,7 @@
     <ClInclude Include="Voxel\block.h" />
     <ClInclude Include="Voxel\chunk.h" />
     <ClInclude Include="Voxel\texture.h" />
+    <ClInclude Include="World\world_generator.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\cobblestone.png" />

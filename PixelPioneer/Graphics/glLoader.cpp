@@ -10,13 +10,15 @@
 #include <STB/stb_image.h>
 #include "shaderLoader.h"
 #include "../Voxel/texture.h"
+#include "../Manager/controlManager.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1280;
+const unsigned int SCR_HEIGHT = 720;
 GLFWwindow* window = nullptr;
 
 int initiateGL() {
@@ -45,6 +47,9 @@ int initiateGL() {
         return -1;
     }
 
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
+
     stbi_set_flip_vertically_on_load(true);
     //ShaderLoader::getInstance()->getDefaultShader();
     return 0;
@@ -52,7 +57,7 @@ int initiateGL() {
 
 int openWindow()
 {
-    Chunk* ch = new Chunk();
+    Chunk* ch = new Chunk(0,0,0);
     ch->setBlock(0, 0, 0, 1);
     ch->setBlock(1, 0, 0, 1);
     ch->setBlock(1, 0, 0, 2);
@@ -85,12 +90,10 @@ int openWindow()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         ShaderLoader::getInstance()->getDefaultShader()->use();
-        ShaderLoader::getInstance()->getDefaultShader()->setViewTransform(glm::lookAt(glm::vec3(5, 4, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)));
-        ShaderLoader::getInstance()->getDefaultShader()->setProjTransform(
-            glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f));
         //ShaderLoader::getInstance()->getDefaultShader()->setInt("texArray", 1);
         ch->bind();
         vt->bindTextures();
+        ControlManager::getInstance()->applyCameraToShader();
         ch->render();
 
         glfwSwapBuffers(window);
@@ -111,6 +114,20 @@ void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        ControlManager::getInstance()->move(-1, 0, 0);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        ControlManager::getInstance()->move(1, 0, 0);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        ControlManager::getInstance()->move(0, 0, 1);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        ControlManager::getInstance()->move(0, 0, -1);
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        ControlManager::getInstance()->move(0, 1, 0);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        ControlManager::getInstance()->move(0, -1, 0);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -120,4 +137,18 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+}
+
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    static bool firstMouse = true;
+    static float lastX, lastY;
+    if (firstMouse) {
+        firstMouse = false;
+        lastX = xpos; lastY = ypos;
+    }
+
+    ControlManager::getInstance()->look(xpos - lastX, lastY - ypos);
+    lastX = xpos;
+    lastY = ypos;
 }
