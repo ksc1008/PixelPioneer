@@ -74,11 +74,11 @@ bool Chunk::checkAdjacent(int x, int y, int z, int face) {
 		break;
 	}
 	case 2: {
-		nx = x; ny = y; nz = z + 1;
+		nx = x; ny = y; nz = z - 1;
 		break;
 	}
 	case 3: {
-		nx = x; ny = y; nz = z - 1;
+		nx = x; ny = y; nz = z + 1;
 		break;
 	}
 	case 4: {

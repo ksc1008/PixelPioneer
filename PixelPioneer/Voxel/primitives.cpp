@@ -6,7 +6,7 @@ void PrimitiveCube::inititateCube(int size)
 {
     if (initiated)
         return;
-    cube = new short[108] {
+    cube = new int[108] {
         // Bottom face
         -1, 0, -1,
             1, 0, -1,
@@ -23,14 +23,6 @@ void PrimitiveCube::inititateCube(int size)
             1, 2, 1,
             1, 2, -1,
 
-            // Front face
-            -1, 0, 1,
-            1, 0, 1,
-            1, 2, 1,
-            -1, 0, 1,
-            1, 2, 1,
-            -1, 2, 1,
-
             // Back face
             1, 0, -1,
             -1, 0, -1,
@@ -38,6 +30,14 @@ void PrimitiveCube::inititateCube(int size)
             1, 0, -1,
             -1, 2, -1,
             1, 2, -1,
+
+            // Front face
+            -1, 0, 1,
+            1, 0, 1,
+            1, 2, 1,
+            -1, 0, 1,
+            1, 2, 1,
+            -1, 2, 1,
 
             // Left face
             -1, 0, -1,
@@ -56,7 +56,7 @@ void PrimitiveCube::inititateCube(int size)
             1, 0, -1
     };
 
-    uvs = new short[36] {
+    uvs = new int[36] {
         // Bottom face
         0,
             2,
@@ -73,7 +73,7 @@ void PrimitiveCube::inititateCube(int size)
             3,
             1,
 
-            // Front face
+            // Back face
             0,
             2,
             3,
@@ -81,7 +81,7 @@ void PrimitiveCube::inititateCube(int size)
             3,
             1,
 
-            // Back face
+            // Front face
             0,
             2,
             3,
@@ -106,5 +106,5 @@ void PrimitiveCube::inititateCube(int size)
             1
     };
 
-    buffer = new short[size];
+    buffer = new int[size];
 }

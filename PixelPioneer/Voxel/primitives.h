@@ -6,9 +6,9 @@ class PrimitiveCube {
     bool initiated = false;
 
 public:
-    short* cube;
-    short* uvs;
-    short* buffer;
+    int* cube;
+    int* uvs;
+    int* buffer;
 	PrimitiveCube() {
         cube = nullptr;
         uvs = nullptr;

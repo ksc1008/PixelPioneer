@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClCompile Include="Basics\controller.cpp" />
     <ClCompile Include="Debugger.cpp" />
+    <ClCompile Include="Graphics\light.cpp" />
     <ClCompile Include="Manager\controlManager.cpp" />
     <ClCompile Include="Voxel\primitives.cpp" />
     <ClCompile Include="Voxel\voxelModel.cpp" />
@@ -155,6 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\texturepackManifest.h" />
+    <ClInclude Include="Graphics\light.h" />
     <ClInclude Include="Manager\controlManager.h" />
     <ClInclude Include="Voxel\primitives.h" />
     <ClInclude Include="Voxel\voxelModel.h" />

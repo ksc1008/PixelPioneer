@@ -13,16 +13,27 @@ void VoxelModel::startBuild()
 	size = 0;
 }
 
-void VoxelModel::addQuad(short x, short y, short z, short type, int face) {
+void VoxelModel::addQuad(int x, int y, int z, int type, int face) {
     int idx = size;
-    short* buffer = PrimitiveCube::getInstance()->buffer;
-    const short* cube = PrimitiveCube::getInstance()->cube;
-    const short* uvs = PrimitiveCube::getInstance()->uvs;
+    int* buffer = PrimitiveCube::getInstance()->buffer;
+    const int* cube = PrimitiveCube::getInstance()->cube;
+    const int* uvs = PrimitiveCube::getInstance()->uvs;
     for (int i = 0; i < QUAD_VERTICES; i++) {
         buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 0] = cube[18 * face + 3 * i + 0] + x * 2;
         buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 1] = cube[18 * face + 3 * i + 1] + y * 2;
         buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 2] = cube[18 * face + 3 * i + 2] + z * 2;
-        buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 3] = uvs[6 * face + i] + 4 * type;
+
+        /*
+            special bit in vertex shader
+            SAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBCCC (32bit)
+            S : sign bit
+            A : tex index
+            B : uv coord bit
+            C : normal face bit
+        */
+
+        buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 3] = 
+            (uvs[6 * face + i] + 4 * type) * 8 + face;
 
         //Debugger::getInstance()->writeLine("vertex ", i, " = ("
         //    , buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 0],", ",
@@ -35,14 +46,14 @@ void VoxelModel::addQuad(short x, short y, short z, short type, int face) {
 
 void VoxelModel::endBuild()
 {
-    const short* buffer = PrimitiveCube::getInstance()->buffer;
+    const int* buffer = PrimitiveCube::getInstance()->buffer;
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(short) * size * VERTEX_SIZE * QUAD_VERTICES, buffer, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(int) * size * VERTEX_SIZE * QUAD_VERTICES, buffer, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribIPointer(0, 4, GL_SHORT, 4 * sizeof(short), (void*)0);
+    glVertexAttribIPointer(0, 4, GL_INT, 4 * sizeof(int), (void*)0);
     //glVertexAttribPointer(0, 4, GL_SHORT, GL_FALSE, 4 * sizeof(short), (void*)0);
     glEnableVertexAttribArray(0);
 

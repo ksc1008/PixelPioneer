@@ -75,6 +75,9 @@
     <ClCompile Include="World\perlin.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\light.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\graphics.h">
@@ -120,6 +123,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\texturepackManifest.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\light.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,7 +9,7 @@ public:
 	static const int QUAD_VERTICES = 6;
 
 	void startBuild();
-	void addQuad(short x, short y, short z, short type, int face);
+	void addQuad(int x, int y, int z, int type, int face);
 	void endBuild();
 	void renderMesh();
 	void bindVAO();

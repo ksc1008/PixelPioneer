@@ -12,6 +12,7 @@
 #include "../Voxel/texture.h"
 #include "../Manager/controlManager.h"
 #include "../World/world_generator.h"
+#include "light.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -72,6 +73,7 @@ void test(Chunk& ch) {
 
 int openWindow()
 {
+    Light light = Light(DIRECTIONAL,glm::vec3(-1,-1,-2),0.6);
     Chunk* ch = new Chunk(0,0,0);
     test(*ch);
     VoxelTexture* vt = new VoxelTexture(*testManifest());
@@ -101,6 +103,7 @@ int openWindow()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         ShaderLoader::getInstance()->getDefaultShader()->use();
+        light.addToShader();
         //ShaderLoader::getInstance()->getDefaultShader()->setInt("texArray", 1);
         ch->bind();
         vt->bindTextures();
