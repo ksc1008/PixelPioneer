@@ -24,11 +24,11 @@ void VoxelModel::addQuad(short x, short y, short z, short type, int face) {
         buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 2] = cube[18 * face + 3 * i + 2] + z * 2;
         buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 3] = uvs[6 * face + i] + 4 * type;
 
-        Debugger::getInstance()->writeLine("vertex ", i, " = ("
-            , buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 0],", ",
-            buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 1],", ",
-            buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 2],", ",
-            buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 3], ")");
+        //Debugger::getInstance()->writeLine("vertex ", i, " = ("
+        //    , buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 0],", ",
+        //    buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 1],", ",
+        //    buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 2],", ",
+        //    buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 3], ")");
     }
     size++;
 }

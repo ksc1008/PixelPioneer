@@ -1,4 +1,4 @@
-#include "texturepack.h"
+#include "texturepackManifest.h"
 
 TexturePackManifest* testManifest() {
 	TexturePackManifest* manifest = new TexturePackManifest;

@@ -11,6 +11,7 @@
 #include "shaderLoader.h"
 #include "../Voxel/texture.h"
 #include "../Manager/controlManager.h"
+#include "../World/world_generator.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -55,14 +56,24 @@ int initiateGL() {
     return 0;
 }
 
+void test(Chunk& ch) {
+    int n = 16;
+    auto heightmap = WorldGenerator::createLandscape(n, 4);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            for (int k = 0; k <= heightmap[i][j]; k++) {
+                ch.setBlock(0, i, k, j);
+            }
+        }
+        delete[] heightmap[i];
+    }
+    delete[] heightmap;  
+}
+
 int openWindow()
 {
     Chunk* ch = new Chunk(0,0,0);
-    ch->setBlock(0, 0, 0, 1);
-    ch->setBlock(1, 0, 0, 1);
-    ch->setBlock(1, 0, 0, 2);
-    ch->setBlock(1, 0, 1, 2);
-    ch->setBlock(1, 2, 0, 0);
+    test(*ch);
     VoxelTexture* vt = new VoxelTexture(*testManifest());
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -112,22 +123,25 @@ int openWindow()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window)
 {
+    static float time = glfwGetTime();
+    float dt = glfwGetTime()- time;
+    time = glfwGetTime();
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        ControlManager::getInstance()->move(-1, 0, 0);
+        ControlManager::getInstance()->move(-1, 0, 0, dt);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        ControlManager::getInstance()->move(1, 0, 0);
+        ControlManager::getInstance()->move(1, 0, 0, dt);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        ControlManager::getInstance()->move(0, 0, 1);
+        ControlManager::getInstance()->move(0, 0, 1, dt);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        ControlManager::getInstance()->move(0, 0, -1);
+        ControlManager::getInstance()->move(0, 0, -1, dt);
 
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        ControlManager::getInstance()->move(0, 1, 0);
+        ControlManager::getInstance()->move(0, 1, 0, dt);
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-        ControlManager::getInstance()->move(0, -1, 0);
+        ControlManager::getInstance()->move(0, -1, 0, dt);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

@@ -1,5 +1,6 @@
 #pragma once
-#include"../Graphics/texturepack.h"
+#include "../Graphics/texturepackManifest.h"
+#include <glad/glad.h>
 
 class VoxelTexture {
 	int size;

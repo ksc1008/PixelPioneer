@@ -1,3 +1,4 @@
+#define STB_IMAGE_IMPLEMENTATION
 #include "texture.h"
 #include "../include/STB/stb_image.h"
 #include "../debug.h"

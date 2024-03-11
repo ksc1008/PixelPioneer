@@ -8,7 +8,7 @@ public:
 	}
 
 
-	void move(float dx, float dy, float dz);
+	void move(float dx, float dy, float dz, float dt);
 
 	void look(float dx, float dy);
 
@@ -17,7 +17,7 @@ public:
 private:
 	float rotationY = 0;
 
-	float speed = 0.1;
+	float speed = 5;
 	float sensitivity = 0.05;
 	static ControlManager instance;
 	Camera camera;

@@ -2,10 +2,10 @@
 
 ControlManager ControlManager::instance;
 
-void ControlManager::move(float dx, float dy, float dz)
+void ControlManager::move(float dx, float dy, float dz, float dt)
 {
-	camera.translate(glm::vec3(0, dy, 0) * speed);
-	camera.translate(rotatedForward(rotationY,glm::vec3(dz,0,dx)) * speed);
+	camera.translate(glm::vec3(0, dy, 0) * speed * dt);
+	camera.translate(rotatedForward(rotationY,glm::vec3(dz,0,dx)) * speed * dt);
 }
 
 void ControlManager::look(float dx, float dy)

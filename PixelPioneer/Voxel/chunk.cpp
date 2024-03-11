@@ -4,14 +4,14 @@
 
 
 Chunk::Chunk(int x, int y, int z)
-{// Delete the blocks
-	for (int i = 0; i < CHUNK_SIZE; ++i) {
-		for (int j = 0; j < CHUNK_SIZE; ++j) {
-			delete[] m_pBlocks[i][j];
+{
+	m_pBlocks = new Block **[CHUNK_SIZE];
+	for (int i = 0; i < CHUNK_SIZE; i++) {
+		m_pBlocks[i] = new Block * [CHUNK_SIZE];
+		for (int j = 0; j < CHUNK_SIZE; j++) {
+			m_pBlocks[i][j] = new Block[CHUNK_SIZE];
 		}
-		delete[] m_pBlocks[i];
 	}
-	delete[] m_pBlocks;
 
 	m_chunkX = x;
 	m_chunkY = y;
@@ -21,6 +21,13 @@ Chunk::Chunk(int x, int y, int z)
 }
 
 Chunk::~Chunk() { 
+	for (int i = 0; i < CHUNK_SIZE; ++i) {
+		for (int j = 0; j < CHUNK_SIZE; ++j) {
+			delete[] m_pBlocks[i][j];
+		}
+		delete[] m_pBlocks[i];
+	}
+	delete[] m_pBlocks;
 }
 
 void Chunk::update(float dt)

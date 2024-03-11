@@ -137,48 +137,37 @@
   <ItemGroup>
     <ClCompile Include="Basics\controller.cpp" />
     <ClCompile Include="Debugger.cpp" />
-    <ClCompile Include="Graphics\material.cpp" />
     <ClCompile Include="Manager\controlManager.cpp" />
-    <ClCompile Include="noiseutils.cpp" />
     <ClCompile Include="Voxel\primitives.cpp" />
     <ClCompile Include="Voxel\voxelModel.cpp" />
     <ClCompile Include="Basics\camera.cpp" />
     <ClCompile Include="Graphics\glLoader.cpp" />
-    <ClCompile Include="Graphics\object.cpp" />
-    <ClCompile Include="Graphics\meshPreset.cpp" />
-    <ClCompile Include="Graphics\model.cpp" />
-    <ClCompile Include="Graphics\modelRepository.cpp" />
     <ClCompile Include="Graphics\shader.cpp" />
     <ClCompile Include="Graphics\testTexpack.cpp" />
-    <ClCompile Include="Graphics\texturepack.cpp" />
-    <ClCompile Include="Graphics\texturepackRepository.cpp" />
     <ClCompile Include="Main\main.cpp" />
     <ClCompile Include="Graphics\glad.c" />
     <ClCompile Include="Graphics\shaderLoader.cpp" />
     <ClCompile Include="Voxel\block.cpp" />
     <ClCompile Include="Voxel\chunk.cpp" />
     <ClCompile Include="Voxel\texture.cpp" />
+    <ClCompile Include="World\perlin.cpp" />
     <ClCompile Include="World\world_generator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Graphics\material.h" />
+    <ClInclude Include="Graphics\texturepackManifest.h" />
     <ClInclude Include="Manager\controlManager.h" />
-    <ClInclude Include="noiseutils.h" />
     <ClInclude Include="Voxel\primitives.h" />
     <ClInclude Include="Voxel\voxelModel.h" />
     <ClInclude Include="Basics\camera.h" />
     <ClInclude Include="Graphics\graphics.h" />
-    <ClInclude Include="Graphics\mesh.h" />
-    <ClInclude Include="Graphics\model.h" />
-    <ClInclude Include="Graphics\object.h" />
     <ClInclude Include="Graphics\shader.h" />
-    <ClInclude Include="Graphics\texturepack.h" />
     <ClInclude Include="include\STB\stb_image.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="Graphics\shaderLoader.h" />
     <ClInclude Include="Voxel\block.h" />
     <ClInclude Include="Voxel\chunk.h" />
     <ClInclude Include="Voxel\texture.h" />
+    <ClInclude Include="World\perlin.h" />
     <ClInclude Include="World\world_generator.h" />
   </ItemGroup>
   <ItemGroup>
