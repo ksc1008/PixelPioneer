@@ -99,7 +99,7 @@ bool Chunk::checkAdjacent(int x, int y, int z, int face) {
 
 void Chunk::render() {
 	ShaderLoader::getInstance()->getDefaultShader()->setModelTransform(glm::translate(glm::mat4(1.0f),
-		glm::vec3(CHUNK_SIZE * m_chunkX, CHUNK_SIZE * m_chunkY, CHUNK_SIZE * m_chunkZ)));
+		glm::vec3(CHUNK_SIZE * m_chunkX, CHUNK_SIZE * m_chunkY, CHUNK_SIZE * m_chunkZ)*0.66f));
 	m_model->renderMesh();
 }
 

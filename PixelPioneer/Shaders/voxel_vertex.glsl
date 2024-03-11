@@ -21,7 +21,7 @@ vec3 getNormal(){
 
 void main()
 {
-	gl_Position = projection * view * model * vec4(aPos.x * 0.5,aPos.y * 0.5,aPos.z * 0.5, 1.0);
+	gl_Position = projection * view * model * vec4(aPos.x * 0.33,aPos.y * 0.33,aPos.z * 0.33, 1.0);
 	//gl_Position = projection * view * vec4(aPos.x * 0.5,aPos.y * 0.5,aPos.z * 0.5, 1.0);
 	TexCoord = vec2(float( (aPos.w & 8) / 8), float( (aPos.w & 16) / 16));
 	texIdx = aPos.w / 32;

@@ -17,7 +17,7 @@ public:
 private:
 	float rotationY = 0;
 
-	float speed = 5;
+	float speed = 10;
 	float sensitivity = 0.05;
 	static ControlManager instance;
 	Camera camera;

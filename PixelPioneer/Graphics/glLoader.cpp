@@ -71,11 +71,41 @@ void test(Chunk& ch) {
     delete[] heightmap;  
 }
 
+void test2(Chunk** chunks, int w) {
+    int n = w * 16;
+    auto heightmap = WorldGenerator::createLandscape(n, 12);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            for (int k = 0; k <= heightmap[i][j]; k++) {
+                chunks[(i / 16) * w + (j / 16)]->setBlock(0, i%16, k, j%16);
+            }
+        }
+        delete[] heightmap[i];
+    }
+    delete[] heightmap;    
+}
+
+void updateChunks(Chunk** chunks, int n) {
+    for (int i = 0; i < n; i++)
+        chunks[i]->update(0);
+}
+
+void renderChunks(Chunk** chunks, int n) {
+    for (int i = 0; i < n; i++) {
+        chunks[i]->bind();
+        chunks[i]->render();
+    }
+}
+
 int openWindow()
 {
     Light light = Light(DIRECTIONAL,glm::vec3(-1,-1,-2),0.6);
-    Chunk* ch = new Chunk(0,0,0);
-    test(*ch);
+    int chunk_count = 16;
+    Chunk** chunks = new Chunk*[chunk_count* chunk_count];
+    for (int i = 0; i < chunk_count * chunk_count; i++) {
+        chunks[i] = new Chunk(i / chunk_count - chunk_count/2, 0, i % chunk_count - chunk_count / 2);
+    }
+    test2(chunks, chunk_count);
     VoxelTexture* vt = new VoxelTexture(*testManifest());
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -88,7 +118,7 @@ int openWindow()
     // render loop
     // -----------
     //ShaderLoader::getInstance()->getDefaultShader()->setInt("texture1", 0);
-    ch->update(0);
+    updateChunks(chunks, chunk_count * chunk_count);
     glActiveTexture(GL_TEXTURE0);
     while (!glfwWindowShouldClose(window))
     {
@@ -99,22 +129,21 @@ int openWindow()
 
         // render
         // ------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.45f, 0.55f, 0.65f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         ShaderLoader::getInstance()->getDefaultShader()->use();
         light.addToShader();
         //ShaderLoader::getInstance()->getDefaultShader()->setInt("texArray", 1);
-        ch->bind();
         vt->bindTextures();
         ControlManager::getInstance()->applyCameraToShader();
-        ch->render();
+        renderChunks(chunks, chunk_count * chunk_count);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    delete ch;
+    delete[] chunks;
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
