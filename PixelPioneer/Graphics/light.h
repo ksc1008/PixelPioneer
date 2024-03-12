@@ -6,7 +6,8 @@ class Light
 {
 	LightType m_type;
 	glm::vec3 m_pos;
-	float m_intensity;
+	float m_intensity_ambient;
+	float m_intensity_diffuse;
 
 public:
 	Light(LightType type, glm::vec3 pos, float intensity);

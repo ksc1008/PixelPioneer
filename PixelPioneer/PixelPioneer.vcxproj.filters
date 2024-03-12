@@ -57,7 +57,7 @@
     <ClCompile Include="Voxel\texture.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Voxel\primitives.cpp">
+    <ClCompile Include="Voxel\tempStorage.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Debugger.cpp">
@@ -76,6 +76,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\light.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Voxel\chunkLoader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\fpsCounter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -110,7 +116,7 @@
     <ClInclude Include="Voxel\texture.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Voxel\primitives.h">
+    <ClInclude Include="Voxel\tempStorage.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Manager\controlManager.h">
@@ -126,6 +132,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\light.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel\chunkLoader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\fpsCounter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

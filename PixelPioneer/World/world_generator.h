@@ -6,7 +6,7 @@
 class WorldGenerator {
 public:
     static int** createLandscape(const int n, const int max_height) {
-        PerlinNoise perlin;
+        PerlinNoise perlin(0);
         int** output = new int* [n];
         for (int i = 0; i < n; i++) {
             output[i] = new int[n];

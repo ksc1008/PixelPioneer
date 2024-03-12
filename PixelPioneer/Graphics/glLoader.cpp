@@ -13,6 +13,7 @@
 #include "../Manager/controlManager.h"
 #include "../World/world_generator.h"
 #include "light.h"
+#include "../Voxel/chunkLoader.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -22,11 +23,13 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 GLFWwindow* window = nullptr;
+bool lineRendering = false;
 
 int initiateGL() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_SAMPLES, 4);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
@@ -92,23 +95,28 @@ void updateChunks(Chunk** chunks, int n) {
 
 void renderChunks(Chunk** chunks, int n) {
     for (int i = 0; i < n; i++) {
-        chunks[i]->bind();
         chunks[i]->render();
     }
 }
 
+ChunkLoader cl;
+
 int openWindow()
 {
-    Light light = Light(DIRECTIONAL,glm::vec3(-1,-1,-2),0.6);
-    int chunk_count = 16;
-    Chunk** chunks = new Chunk*[chunk_count* chunk_count];
-    for (int i = 0; i < chunk_count * chunk_count; i++) {
-        chunks[i] = new Chunk(i / chunk_count - chunk_count/2, 0, i % chunk_count - chunk_count / 2);
-    }
-    test2(chunks, chunk_count);
+    Light light = Light(DIRECTIONAL,glm::vec3(-1,-4,-2),0.8);
+    //int chunk_count = 16;
+    //Chunk** chunks = new Chunk*[chunk_count* chunk_count];
+    //for (int i = 0; i < chunk_count * chunk_count; i++) {
+    //    chunks[i] = new Chunk(i / chunk_count - chunk_count/2, 0, i % chunk_count - chunk_count / 2);
+    //}
+    int sz = 4;
+    cl.setWorldSize(sz, 1, sz);
+    cl.generateLargeChunk(0, 0, 0, sz);
+    cl.updateChunks();
     VoxelTexture* vt = new VoxelTexture(*testManifest());
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
     glCullFace(GL_BACK);
     
 
@@ -118,7 +126,7 @@ int openWindow()
     // render loop
     // -----------
     //ShaderLoader::getInstance()->getDefaultShader()->setInt("texture1", 0);
-    updateChunks(chunks, chunk_count * chunk_count);
+    //updateChunks(chunks, chunk_count * chunk_count);
     glActiveTexture(GL_TEXTURE0);
     while (!glfwWindowShouldClose(window))
     {
@@ -137,13 +145,14 @@ int openWindow()
         //ShaderLoader::getInstance()->getDefaultShader()->setInt("texArray", 1);
         vt->bindTextures();
         ControlManager::getInstance()->applyCameraToShader();
-        renderChunks(chunks, chunk_count * chunk_count);
+        cl.renderChunks(lineRendering ? GL_FRONT_AND_BACK : GL_FRONT_AND_BACK, lineRendering?GL_LINE: GL_FILL);
+        //renderChunks(chunks, chunk_count * chunk_count);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    delete[] chunks;
+    //delete[] chunks;
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -155,6 +164,8 @@ int openWindow()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window)
 {
+    static bool oneTime_Q = false;
+    static bool oneTime_V = false;
     static float time = glfwGetTime();
     float dt = glfwGetTime()- time;
     time = glfwGetTime();
@@ -174,6 +185,28 @@ void processInput(GLFWwindow* window)
         ControlManager::getInstance()->move(0, 1, 0, dt);
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         ControlManager::getInstance()->move(0, -1, 0, dt);
+
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        if (!oneTime_Q) {
+            cl.switchMeshUpdateMode();
+            oneTime_Q = true;
+        }
+    }
+    else {
+        oneTime_Q = false;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS) {
+        if (!oneTime_V) {
+            lineRendering = !lineRendering;
+            ShaderLoader::getInstance()->getDefaultShader()->setBool("solid", lineRendering);
+            oneTime_V = true;
+        }
+    }
+    else {
+        oneTime_V = false;
+    }
+
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

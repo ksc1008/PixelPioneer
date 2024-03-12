@@ -19,6 +19,7 @@ private:
 
 public:
     PerlinNoise();
+    PerlinNoise(unsigned int seed);
 
     double noise(double x, double y, double z);
 };

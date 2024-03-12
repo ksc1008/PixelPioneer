@@ -1,8 +1,18 @@
 #include "perlin.h"
+#include <ctime>
 
 PerlinNoise::PerlinNoise() {
     p.resize(256);
     std::iota(p.begin(), p.end(), 0);
+    std::srand(std::time(0));
+    std::random_shuffle(p.begin(), p.end());
+    p.insert(p.end(), p.begin(), p.end());
+}
+
+PerlinNoise::PerlinNoise(unsigned int seed) {
+    p.resize(256);
+    std::iota(p.begin(), p.end(), 0);
+    std::srand(seed);
     std::random_shuffle(p.begin(), p.end());
     p.insert(p.end(), p.begin(), p.end());
 }
