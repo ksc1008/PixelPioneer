@@ -35,7 +35,11 @@ void main()
 		float( (((aPos.y & 8) >> 3) * (aPos.z % 65536))), 
 		float( (((aPos.y & 16) >> 4) * (aPos.z >> 16))));
 	texIdx = aPos.y >> 6;
-	ao = float((aPos.y >> 5) & 1);
+	if(enableAO)
+		ao = float((aPos.y >> 5) & 1);
+	else
+		ao = 0;
+
 	normal = getNormal();
 	wh = vec2(aPos.z % 65536, aPos.z >> 16);
 }

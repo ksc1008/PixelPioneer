@@ -24,6 +24,7 @@ const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 GLFWwindow* window = nullptr;
 bool lineRendering = false;
+bool _ao = true;
 
 int initiateGL() {
     glfwInit();
@@ -164,8 +165,9 @@ int openWindow()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window)
 {
-    static bool oneTime_Q = false;
-    static bool oneTime_V = false;
+    static bool oneTime_1 = false;
+    static bool oneTime_2 = false;
+    static bool oneTime_3 = false;
     static float time = glfwGetTime();
     float dt = glfwGetTime()- time;
     time = glfwGetTime();
@@ -186,27 +188,37 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         ControlManager::getInstance()->move(0, -1, 0, dt);
 
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-        if (!oneTime_Q) {
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+        if (!oneTime_1) {
             cl.switchMeshUpdateMode();
-            oneTime_Q = true;
+            oneTime_1 = true;
         }
     }
     else {
-        oneTime_Q = false;
+        oneTime_1 = false;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS) {
-        if (!oneTime_V) {
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+        if (!oneTime_2) {
             lineRendering = !lineRendering;
             ShaderLoader::getInstance()->getDefaultShader()->setBool("solid", lineRendering);
-            oneTime_V = true;
+            oneTime_2 = true;
         }
     }
     else {
-        oneTime_V = false;
+        oneTime_2 = false;
     }
 
+    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+        if (!oneTime_3) {
+            _ao = !_ao;
+            cl.setAO(_ao);
+            oneTime_3 = true;
+        }
+    }
+    else {
+        oneTime_3 = false;
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

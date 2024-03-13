@@ -7,16 +7,16 @@
 enum RenderMode {FAST, OPTIMAL};
 
 class Chunk {
-	bool m_createAO = true;
 	int m_chunkX, m_chunkY, m_chunkZ;
 	VoxelModel* m_model;
 	RenderMode m_rendermode = OPTIMAL;
+	bool m_ao_built = false;
 	
 public:
 	static const int CHUNK_SIZE = 16;
 	Chunk(int x, int y, int z);
 	~Chunk();
-	void update(float dt);
+	void update(float dt, bool createAO = true);
 	void render();
 
 	void setBlock(int type, int x, int y, int z);
@@ -28,11 +28,11 @@ private: // The blocks data
 	Block*** m_pBlocks;
 	bool needRefresh = true;
 
-	void createFastMesh();
-	void createGreedyMesh();
+	void createFastMesh(bool createAO);
+	void createGreedyMesh(bool createAO);
 
 	bool checkAdjacent(int x, int y, int z, int face);
-	void addFace(int x, int y, int z, int face);
+	void addFace(int x, int y, int z, int face, unsigned char ao = 0);
 	unsigned char checkCorner(int x, int y, int z, int face);
 
 };

@@ -9,6 +9,7 @@ class ChunkLoader
 	Chunk**** m_chunks;
 	bool*** loaded;
 	bool fast = false;
+	bool m_ao_enabled = true;
 
 
 
@@ -27,6 +28,7 @@ public:
 	void renderChunks(GLenum renderFace = GL_FRONT, GLenum renderMode = GL_TRIANGLES);
 	void updateChunks();
 	void switchMeshUpdateMode();
+	void setAO(bool enabled);
 };
 
 

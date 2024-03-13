@@ -33,30 +33,30 @@ Chunk::~Chunk() {
 	delete m_model;
 }
 
-void Chunk::update(float dt)
+void Chunk::update(float dt, bool createAO)
 {
-	if (needRefresh) {
+	if (needRefresh || createAO != m_ao_built) {
 		if (m_rendermode == OPTIMAL)
-			createGreedyMesh();
+			createGreedyMesh(createAO);
 		else
-			createFastMesh();
+			createFastMesh(createAO);
 		needRefresh = false;
+		m_ao_built = createAO;
 	}
 }
 
-void Chunk::createFastMesh() {
+void Chunk::createFastMesh(bool createAO) {
 	m_model->startBuild();
 	auto ao = TemporaryStorage::getInstance()->ao;
-	if (m_createAO) {
+	if (createAO) {
 		for (int i = 0; i < CHUNK_SIZE; ++i) {
 			for (int j = 0; j < CHUNK_SIZE; ++j) {
 				for (int k = 0; k < CHUNK_SIZE; ++k) {
 					if (!m_pBlocks[i][j][k].isActive()) {
 						continue;
 					}
-					for (int face = 0; face < 6; face++) {
-						ao[face][i][j][k] = checkCorner(k, i, j, face);						
-						addFace(k, i, j, face);
+					for (int face = 0; face < 6; face++) {			
+						addFace(k, i, j, face, checkCorner(k, i, j, face));
 					}
 				}
 			}
@@ -79,11 +79,11 @@ void Chunk::createFastMesh() {
 	m_model->endBuild();
 }
 
-void Chunk::createGreedyMesh() {
+void Chunk::createGreedyMesh(bool createAO) {
 	TemporaryStorage::getInstance()->initiateFaceTypes();
 	auto faceType = TemporaryStorage::getInstance()->faceTypes;
 	auto ao = TemporaryStorage::getInstance()->ao;
-	if (m_createAO) {
+	if (createAO) {
 		for (int i = 0; i < CHUNK_SIZE; ++i) {
 			for (int j = 0; j < CHUNK_SIZE; ++j) {
 				for (int k = 0; k < CHUNK_SIZE; ++k) {
@@ -280,11 +280,11 @@ void Chunk::createGreedyMesh() {
 	m_model->endBuild();
 }
 
-void Chunk::addFace(int x, int y, int z, int face)
+void Chunk::addFace(int x, int y, int z, int face, unsigned char ao)
 {
 	if (checkAdjacent(x, y, z, face))
 		return;
-	m_model->addQuad(x, y, z, m_pBlocks[y][z][x].getId(), face,1,1);
+	m_model->addQuad(x, y, z, m_pBlocks[y][z][x].getId(), face,1,1,ao);
 }
 
 /*

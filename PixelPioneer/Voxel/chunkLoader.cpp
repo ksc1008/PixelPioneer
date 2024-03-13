@@ -1,6 +1,7 @@
 #include "chunkLoader.h"
 #include "../World/world_generator.h"
 #include "../debug.h"
+#include "../Graphics/shaderLoader.h"
 
 void ChunkLoader::generateChunks(int w, int h, int d)
 {
@@ -63,6 +64,7 @@ void ChunkLoader::renderChunks(GLenum renderFace, GLenum renderMode)
 {
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glPolygonMode(renderFace, renderMode);
+	ShaderLoader::getInstance()->getDefaultShader()->setBool("enableAO", m_ao_enabled);
 
 	fpsCounter.startStopwatch();
 	for (int i = 0; i < m_height; i++) {
@@ -92,7 +94,7 @@ void ChunkLoader::updateChunks()
 		for (int j = 0; j < m_depth; j++) {
 			for (int k = 0; k < m_width; k++) {
 				if (loaded[i][j][k]) {
-					m_chunks[i][j][k]->update(0);
+					m_chunks[i][j][k]->update(0,m_ao_enabled);
 					count += m_chunks[i][j][k]->getPolygonNumber();
 				}
 			}
@@ -115,6 +117,13 @@ void ChunkLoader::switchMeshUpdateMode() {
 			}
 		}
 	}
+
+	updateChunks();
+}
+
+void ChunkLoader::setAO(bool enabled)
+{
+	m_ao_enabled = enabled;
 
 	updateChunks();
 }
