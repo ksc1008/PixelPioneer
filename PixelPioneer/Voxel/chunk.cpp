@@ -14,6 +14,10 @@ Chunk::Chunk(int x, int y, int z)
 		}
 	}
 
+	for (int i = 0; i < 6; i++) {
+		m_existance_bitmask[i % 3][i / 3] = new uint_fast64_t[CHUNK_SIZE];
+	}
+
 	m_chunkX = x;
 	m_chunkY = y;
 	m_chunkZ = z;
@@ -449,9 +453,35 @@ void Chunk::SetRenderMode(RenderMode mode)
 void Chunk::setBlock(int type, int x, int y, int z)
 {
 	m_pBlocks[y][z][x].setId(type);
+	m_existance_bitmask[0][0][x] |= 1 << y;
+	m_existance_bitmask[0][1][x] |= 1 << z;
+
+	m_existance_bitmask[0][0][y] |= 1 << z;
+	m_existance_bitmask[0][1][y] |= 1 << x;
+
+	m_existance_bitmask[0][0][z] |= 1 << y;
+	m_existance_bitmask[0][1][z] |= 1 << x;
 }
 
 void Chunk::setBlockEnabled(bool enabled, int x, int y, int z)
 {
 	m_pBlocks[y][z][x].setActive(enabled);
+	m_existance_bitmask[0][0][x] |= 1 << y;
+	m_existance_bitmask[0][1][x] |= 1 << z;
+
+	m_existance_bitmask[0][0][y] |= 1 << z;
+	m_existance_bitmask[0][1][y] |= 1 << x;
+
+	m_existance_bitmask[0][0][z] |= 1 << y;
+	m_existance_bitmask[0][1][z] |= 1 << x;
+	if (!enabled) {
+		m_existance_bitmask[0][0][x] ^= 1 << y;
+		m_existance_bitmask[0][1][x] ^= 1 << z;
+
+		m_existance_bitmask[0][0][y] ^= 1 << z;
+		m_existance_bitmask[0][1][y] ^= 1 << x;
+
+		m_existance_bitmask[0][0][z] ^= 1 << y;
+		m_existance_bitmask[0][1][z] ^= 1 << x;
+	}
 }

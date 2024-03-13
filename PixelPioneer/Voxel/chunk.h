@@ -26,6 +26,9 @@ public:
 	void SetRenderMode(RenderMode mode);
 private: // The blocks data
 	Block*** m_pBlocks;
+
+	// [face][direction][depth]
+	uint_fast64_t* m_existance_bitmask[3][2];
 	bool needRefresh = true;
 
 	void createFastMesh(bool createAO);
