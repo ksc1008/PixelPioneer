@@ -357,20 +357,14 @@ unsigned char Chunk::checkCorner(int x, int y, int z, int face)
 			ay = t1 * dy1 + t2 * dy2 + ny;
 			az = t1 * dz1 + t2 * dz2 + nz;
 
-			if (ax < 0 || ax >= CHUNK_SIZE || ay < 0 || ay >= CHUNK_SIZE || az < 0 || az >= CHUNK_SIZE)
-				continue;
-			if (m_pBlocks[ay][az][ax].isActive())
-				occludeLine[bit] = true;
-		}
-	}
+			if ( !(ax < 0 || ax >= CHUNK_SIZE || ay < 0 || ay >= CHUNK_SIZE || az < 0 || az >= CHUNK_SIZE) )
+				if (m_pBlocks[ay][az][ax].isActive())
+					occludeLine[bit] = true;
 
-	bit = -1;
-	for (int i = 1; i >= -1; i -= 2) {
-		for (int j = -1; j <= 1; j += 2) {
-			bit++;
-			ax = i * dx1 + i * j * dx2 + nx;
-			ay = i * dy1 + i * j * dy2 + ny;
-			az = i * dz1 + i * j * dz2 + nz;
+
+			ax = i * dx1 + i * (2 * j - 3) * dx2 + nx;
+			ay = i * dy1 + i * (2 * j - 3) * dy2 + ny;
+			az = i * dz1 + i * (2 * j - 3) * dz2 + nz;
 
 			if (ax < 0 || ax >= CHUNK_SIZE || ay < 0 || ay >= CHUNK_SIZE || az < 0 || az >= CHUNK_SIZE)
 				continue;
@@ -381,9 +375,9 @@ unsigned char Chunk::checkCorner(int x, int y, int z, int face)
 
 	unsigned char result = 0;
 	for (int i = 3; i >= 0; i--) {
-		result = result << 2;
+		result = result << 1;
 		if (occludeLine[i]|| occludeLine[(i+3)%4])
-			result += 2;
+			result += 1;
 		else if (occludePoint[i])
 			result += 1;
 	}

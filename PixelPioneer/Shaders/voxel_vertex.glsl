@@ -34,8 +34,8 @@ void main()
 	TexCoord = vec2(
 		float( (((aPos.y & 8) >> 3) * (aPos.z % 65536))), 
 		float( (((aPos.y & 16) >> 4) * (aPos.z >> 16))));
-	texIdx = aPos.y >> 7;
-	ao = min(float((aPos.y >> 5) & 3),1);
+	texIdx = aPos.y >> 6;
+	ao = float((aPos.y >> 5) & 1);
 	normal = getNormal();
 	wh = vec2(aPos.z % 65536, aPos.z >> 16);
 }

@@ -15,7 +15,7 @@ void VoxelModel::startBuild()
 }
 
 unsigned char getAOBit(unsigned char ao, int vertexIdx) {
-    return (ao >> (vertexIdx * 2)) & 3;
+    return (ao >> vertexIdx) & 1;
 }
 
 void VoxelModel::addQuad(int x, int y, int z, int type, int face, int w, int h, unsigned char ao) {
@@ -60,7 +60,7 @@ void VoxelModel::addQuad(int x, int y, int z, int type, int face, int w, int h, 
             buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE] += (cube[18 * face + 3 * t + 2] * zsize + z) * 65536;
 
             buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 1] =
-                face + 8 * (uvs[6 * face + t] + 4 * (getAOBit(ao, tri_idx[t]) + 4 * type));
+                face + 8 * (uvs[6 * face + t] + 4 * (getAOBit(ao, tri_idx[t]) + 2 * type));
 
             buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 2] =
                 w + h * 65536;
@@ -70,7 +70,7 @@ void VoxelModel::addQuad(int x, int y, int z, int type, int face, int w, int h, 
 
             /*
                 special bit in vertex shader
-                SDDDDDDDDDDDDDDDDDDDDDDDDDDDDCCBBAAA (32bit)
+                SDDDDDDDDDDDDDDDDDDDDDDDDDDDDDCBBAAA (32bit)
                 S : sign bit
                 D : tex index
                 C : ao bit
