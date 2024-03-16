@@ -7,7 +7,6 @@ out vec3 normal;
 
 out float ao;
 
-out vec2 wh;
 flat out int texIdx;
 
 uniform mat4 model;
@@ -41,5 +40,4 @@ void main()
 		ao = 0;
 
 	normal = getNormal();
-	wh = vec2(aPos.z % 65536, aPos.z >> 16);
 }

@@ -61,45 +61,6 @@ int initiateGL() {
     return 0;
 }
 
-void test(Chunk& ch) {
-    int n = 16;
-    auto heightmap = WorldGenerator::createLandscape(n, 4);
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            for (int k = 0; k <= heightmap[i][j]; k++) {
-                ch.setBlock(0, i, k, j);
-            }
-        }
-        delete[] heightmap[i];
-    }
-    delete[] heightmap;  
-}
-
-void test2(Chunk** chunks, int w) {
-    int n = w * 16;
-    auto heightmap = WorldGenerator::createLandscape(n, 12);
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            for (int k = 0; k <= heightmap[i][j]; k++) {
-                chunks[(i / 16) * w + (j / 16)]->setBlock(0, i%16, k, j%16);
-            }
-        }
-        delete[] heightmap[i];
-    }
-    delete[] heightmap;    
-}
-
-void updateChunks(Chunk** chunks, int n) {
-    for (int i = 0; i < n; i++)
-        chunks[i]->update(0);
-}
-
-void renderChunks(Chunk** chunks, int n) {
-    for (int i = 0; i < n; i++) {
-        chunks[i]->render();
-    }
-}
-
 ChunkLoader cl;
 
 int openWindow()

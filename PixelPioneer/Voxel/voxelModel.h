@@ -1,13 +1,15 @@
 #pragma once
+#include <vector>
 
 class VoxelModel {
 	int size;
 	int num_polygons = 0;
 	unsigned int VBO, VAO = 0;
 
+	std::vector<int> buffer;
 	double startTime = 0;
 	double endTime = 0;
-
+	unsigned int getAOBit(unsigned int bitmask, int idx);
 
 public:
 	static const int VERTEX_SIZE = 3;
@@ -15,7 +17,7 @@ public:
 
 	int getNumberOfPolygons() { return num_polygons; }
 	void startBuild();
-	void addQuad(int x, int y, int z, int type, int face, int w, int h, unsigned char ao = 0);
+	void addQuad(int x, int y, int z, int type, int face, int w, int h, unsigned int ao);
 	void endBuild();
 	void renderMesh();
 	void bindVAO();

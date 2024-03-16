@@ -4,6 +4,11 @@
 #include "../debug.h"
 #include"tempStorage.h"
 
+const short Chunk::faceOffsets[][3] = {{0,-1,0},{0,1,0},{0,0,-1},{0,0,1},{-1,0,0},{1,0,0}};
+const short Chunk::xPerFace[][3] = { {0,0,1},{0,0,1},{0,1,0},{0,1,0},{1,0,0},{1,0,0} };
+const short Chunk::yPerFace[][3] = { {1,0,0},{1,0,0},{0,0,1},{0,0,1},{0,1,0},{0,1,0} };
+const short Chunk::zPerFace[][3] = { {0,1,0},{0,1,0},{1,0,0},{1,0,0},{0,0,1},{0,0,1} };
+
 Chunk::Chunk(int x, int y, int z)
 {
 	m_pBlocks = new Block **[CHUNK_SIZE];
@@ -14,8 +19,30 @@ Chunk::Chunk(int x, int y, int z)
 		}
 	}
 
+	int c;
 	for (int i = 0; i < 6; i++) {
-		m_existance_bitmask[i % 3][i / 3] = new uint_fast64_t[CHUNK_SIZE];
+		m_existance_bitmask[i] = new bitType *[CHUNK_SIZE];
+		m_block_cull_bitmask[i] = new bitType *[CHUNK_SIZE];
+		m_horizontal_merge[i] = new unsigned char** [CHUNK_SIZE];
+		for(c = 0;c<4;c++)
+			m_ao_bitmask[c][i] = new bitType *[CHUNK_SIZE];
+		for (int j = 0; j < CHUNK_SIZE; j++) {
+			m_existance_bitmask[i][j] = new bitType[CHUNK_SIZE];
+			m_block_cull_bitmask[i][j] = new bitType[CHUNK_SIZE];
+			m_horizontal_merge[i][j] = new unsigned char* [CHUNK_SIZE];
+			for (c = 0; c < 4; c++) {
+				m_ao_bitmask[c][i][j] = new bitType[CHUNK_SIZE];
+				memset(m_ao_bitmask[c][i][j], 0, sizeof(bitType) * CHUNK_SIZE);
+			}
+			memset(m_existance_bitmask[i][j], 0, sizeof(bitType) * CHUNK_SIZE);
+			memset(m_block_cull_bitmask[i][j], 0, sizeof(bitType) * CHUNK_SIZE);
+			for (int k = 0; k < CHUNK_SIZE; k++) {
+				m_horizontal_merge[i][j][k] = new unsigned char[CHUNK_SIZE];
+				for (int t = 0; t < CHUNK_SIZE; t++) {
+					m_horizontal_merge[i][j][k][t] = CHUNK_SIZE - t;
+				}
+			}
+		}
 	}
 
 	m_chunkX = x;
@@ -39,12 +66,13 @@ Chunk::~Chunk() {
 
 void Chunk::update(float dt, bool createAO)
 {
-	if (needRefresh || createAO != m_ao_built) {
+	if (needRefreshMesh || createAO != m_ao_built) {
+		
 		if (m_rendermode == OPTIMAL)
 			createGreedyMesh(createAO);
 		else
 			createFastMesh(createAO);
-		needRefresh = false;
+		needRefreshMesh = false;
 		m_ao_built = createAO;
 	}
 }
@@ -52,30 +80,20 @@ void Chunk::update(float dt, bool createAO)
 void Chunk::createFastMesh(bool createAO) {
 	m_model->startBuild();
 	auto ao = TemporaryStorage::getInstance()->ao;
-	if (createAO) {
-		for (int i = 0; i < CHUNK_SIZE; ++i) {
-			for (int j = 0; j < CHUNK_SIZE; ++j) {
-				for (int k = 0; k < CHUNK_SIZE; ++k) {
-					if (!m_pBlocks[i][j][k].isActive()) {
-						continue;
+	int x, y, z;
+	bitType ao0, ao1, ao2, ao3;
+
+	for (int face = 0; face < 6; face++) {
+		for (int i = 0; i < CHUNK_SIZE; i++) {
+			for (int j = 0; j < CHUNK_SIZE; j++) {
+				bitType mask = 1;
+
+				for (int depth = 0; depth < CHUNK_SIZE; depth++) {
+					if (m_block_cull_bitmask[face][i][j] & mask) {
+						x = getX(face, depth, i, j); y = getY(face, depth, i, j); z = getZ(face, depth, i, j);
+						m_model->addQuad(x, y, z, m_pBlocks[y][z][x].getId(), face, 1, 1, getAOBitmask(face,i,j,depth));
 					}
-					for (int face = 0; face < 6; face++) {			
-						addFace(k, i, j, face, checkCorner(k, i, j, face));
-					}
-				}
-			}
-		}
-	}
-	else {
-		for (int i = 0; i < CHUNK_SIZE; ++i) {
-			for (int j = 0; j < CHUNK_SIZE; ++j) {
-				for (int k = 0; k < CHUNK_SIZE; ++k) {
-					if (!m_pBlocks[i][j][k].isActive()) {
-						continue;
-					}
-					for (int face = 0; face < 6; face++) {
-						addFace(k, i, j, face);
-					}
+					mask <<= 1;
 				}
 			}
 		}
@@ -84,347 +102,78 @@ void Chunk::createFastMesh(bool createAO) {
 }
 
 void Chunk::createGreedyMesh(bool createAO) {
-	TemporaryStorage::getInstance()->initiateFaceTypes();
-	auto faceType = TemporaryStorage::getInstance()->faceTypes;
-	auto ao = TemporaryStorage::getInstance()->ao;
-	if (createAO) {
-		for (int i = 0; i < CHUNK_SIZE; ++i) {
-			for (int j = 0; j < CHUNK_SIZE; ++j) {
-				for (int k = 0; k < CHUNK_SIZE; ++k) {
-					for (int face = 0; face < 6; face++) {
-						if (!m_pBlocks[i][j][k].isActive() || checkAdjacent(k, i, j, face))
-							faceType[face][i][j][k] = -1;
-						else {
-							faceType[face][i][j][k] = m_pBlocks[i][j][k].getId();
-							ao[face][i][j][k] = checkCorner(k, i, j, face);
-						}
-					}
-				}
-			}
-		}
-	}
-	else {
-		for (int i = 0; i < CHUNK_SIZE; ++i) {
-			for (int j = 0; j < CHUNK_SIZE; ++j) {
-				for (int k = 0; k < CHUNK_SIZE; ++k) {
-					for (int face = 0; face < 6; face++) {
-						if (!m_pBlocks[i][j][k].isActive() || checkAdjacent(k, i, j, face))
-							faceType[face][i][j][k] = -1;
-						else {
-							faceType[face][i][j][k] = m_pBlocks[i][j][k].getId();
-						}
-					}
-				}
-			}
-		}
-	}
 
-	int gridX, gridY, subgridX, subgridY, width, height;
 	int meshingType = 0;
-	unsigned char meshingAO = 0;
 	bool done = false;
 
 	m_model->startBuild();
+	unsigned short baked_mesh_widths[CHUNK_SIZE] = { 0u };
 
 	for (int f = 0; f < 6; f++) {
-		switch (f / 2) {
-		case 0: {
-			for (int i = 0; i < CHUNK_SIZE; i++) {
-				for (int x = 0; x < CHUNK_SIZE; x++) {
-					for (int y = 0; y < CHUNK_SIZE;) {
-						gridX = x; gridY = y;
+		for (int depth = 0; depth < CHUNK_SIZE; depth++) {
+			unsigned short min_width_j = 0;
+			unsigned short min_width_i = 0;
+			for (int t = 0; t < CHUNK_SIZE; t++) {
+				baked_mesh_widths[t] = 0;
+			}
+			do {
+				int height = 1;
+				int i = min_width_i;
+				const int j = min_width_j;
+				const int width = m_horizontal_merge[f][depth][i][j];
+				const int x = getX(f, depth, i, j);
+				const int y = getY(f, depth, i, j);
+				const int z = getZ(f, depth, i, j);
+				const int mergeType = (((m_block_cull_bitmask[f][i][j] >> depth) & 1) == 0)?-1:m_pBlocks[y][z][x].getId();
+				const unsigned int mergeAO = getAOBitmask(f, i, j, depth);
 
-						if (faceType[f][i][y][x] == -1) {
-							y++;
-							continue;
+				i++;
+				if (mergeType == -1) {
+					for (; i < CHUNK_SIZE; i++) {
+						if ((((m_block_cull_bitmask[f][i][j] >> depth) & 1) > 0)
+							|| m_horizontal_merge[f][depth][i][j] != width
+							|| baked_mesh_widths[i] != j) {
+							break;
 						}
-
-						meshingType = faceType[f][i][y][x];
-						meshingAO = ao[f][i][y][x];
-						height = 0;
-
-						for (int dy = gridY; dy < CHUNK_SIZE; dy++) {
-							subgridX = gridX; subgridY = dy;
-							if (faceType[f][i][subgridY][subgridX] != meshingType || ao[f][i][subgridY][subgridX] != meshingAO)
-								break;
-							height++;
-						}
-
-						width = 1;
-						done = false;
-						for (int dx = gridX + 1; dx < CHUNK_SIZE; dx++) {
-							for (int dy = gridY; dy < gridY + height && dy < CHUNK_SIZE; dy++) {
-								subgridX = dx; subgridY = dy;
-								if (faceType[f][i][dy][dx] != meshingType || ao[f][i][dy][dx] != meshingAO) {
-									done = true;
-									break;
-								}
-							}
-							if (done)
-								break;
-							width++;
-						}
-
-						for (int dx = gridX; dx < gridX + width; dx++) {
-							for (int dy = gridY; dy < gridY + height; dy++) {
-								faceType[f][i][dy][dx] = -1;
-							}
-						}
-
-						m_model->addQuad(gridX, i, gridY, meshingType, f, width, height, meshingAO);
+						height++;
 					}
 				}
-			}
-			break;
-		}
-		case 1: {
-			for (int j = 0; j < CHUNK_SIZE; j++) {
-				for (int x = 0; x < CHUNK_SIZE; x++) {
-					for (int y = 0; y < CHUNK_SIZE;) {
-						gridX = x; gridY = y;
+				else {
+					int dx = x;
+					int dy = y;
+					int dz = z;
+					for (; i<CHUNK_SIZE; i++) {
+						dx += xPerFace[f][1];
+						dy += yPerFace[f][1];
+						dz += zPerFace[f][1];
 
-						if (faceType[f][x][j][y] == -1) {
-							y++;
-							continue;
+						if ((((m_block_cull_bitmask[f][i][j] >> depth) & 1) == 0)
+							|| getAOBitmask(f, i, j, depth) != mergeAO
+							|| m_pBlocks[dy][dz][dx].getId() != mergeType
+							|| m_horizontal_merge[f][depth][i][j] != width
+							|| baked_mesh_widths[i] != j) {
+							break;
 						}
-
-						meshingType = faceType[f][x][j][y];
-						meshingAO = ao[f][x][j][y];
-						height = 0;
-
-						for (int dy = gridY; dy < CHUNK_SIZE; dy++) {
-							subgridX = gridX; subgridY = dy;
-							if (faceType[f][subgridX][j][subgridY] != meshingType || ao[f][subgridX][j][subgridY] != meshingAO)
-								break;
-							height++;
-						}
-
-						width = 1;
-						done = false;
-						for (int dx = gridX + 1; dx < CHUNK_SIZE; dx++) {
-							for (int dy = gridY; dy < gridY + height && dy < CHUNK_SIZE; dy++) {
-								subgridX = dx; subgridY = dy;
-								if (faceType[f][dx][j][dy] != meshingType || ao[f][dx][j][dy] != meshingAO) {
-									done = true;
-									break;
-								}
-							}
-							if (done)
-								break;
-							width++;
-						}
-
-						for (int dx = gridX; dx < gridX + width; dx++) {
-							for (int dy = gridY; dy < gridY + height; dy++) {
-								faceType[f][dx][j][dy] = -1;
-							}
-						}
-
-						m_model->addQuad(gridY, gridX, j, meshingType, f, width, height, meshingAO);
+						height++;
 					}
+					m_model->addQuad(x, y, z, meshingType, f, height, width, mergeAO);
 				}
-			}
-			break;
-		}
-		case 2: {
-			for (int k = 0; k < CHUNK_SIZE; k++) {
-				for (int x = 0; x < CHUNK_SIZE; x++) {
-					for (int y = 0; y < CHUNK_SIZE;) {
-						gridX = x; gridY = y;
 
-						if (faceType[f][x][y][k] == -1) {
-							y++;
-							continue;
-						}
-
-						meshingType = faceType[f][x][y][k];
-						meshingAO = ao[f][x][y][k];
-						height = 0;
-
-						for (int dy = gridY; dy < CHUNK_SIZE; dy++) {
-							subgridX = gridX; subgridY = dy;
-							if (faceType[f][subgridX][subgridY][k] != meshingType || ao[f][subgridX][subgridY][k] != meshingAO)
-								break;
-							height++;
-						}
-
-						width = 1;
-						done = false;
-						for (int dx = gridX + 1; dx < CHUNK_SIZE; dx++) {
-							for (int dy = gridY; dy < gridY + height && dy < CHUNK_SIZE; dy++) {
-								subgridX = dx; subgridY = dy;
-								if (faceType[f][dx][dy][k] != meshingType || ao[f][dx][dy][k] != meshingAO) {
-									done = true;
-									break;
-								}
-							}
-							if (done)
-								break;
-							width++;
-						}
-
-						for (int dx = gridX; dx < gridX + width; dx++) {
-							for (int dy = gridY; dy < gridY + height; dy++) {
-								faceType[f][dx][dy][k] = -1;
-							}
-						}
-
-						m_model->addQuad(k, gridX, gridY, meshingType, f, width, height, meshingAO);
-					}
+				for (int t = 0; t < height; t++) {
+					baked_mesh_widths[min_width_i + t] += width;
 				}
-			}
-			break;
-		}
-		default: {
-			break;
-		}
+				for (int t = 0; t < CHUNK_SIZE; t++) {
+					if (baked_mesh_widths[t] < baked_mesh_widths[min_width_i])
+						min_width_i = t;
+				}
+				min_width_j = baked_mesh_widths[min_width_i];
+			} while (min_width_j < CHUNK_SIZE);
 		}
 	}
 
 	m_model->endBuild();
 }
 
-void Chunk::addFace(int x, int y, int z, int face, unsigned char ao)
-{
-	if (checkAdjacent(x, y, z, face))
-		return;
-	m_model->addQuad(x, y, z, m_pBlocks[y][z][x].getId(), face,1,1,ao);
-}
-
-/*
-	check corner : 한 블럭의 해당 면과 인접한 블럭이 존재하는지 체크.
-	해당 면과 수직인 축에 대해 면이 바라보는 방향으로 1 만큼 앞에 있으면서, 평행한 축에 대해 해당 면과 맨허튼 거리가 1~2인 블럭을 체크
-	
-	return : 면의 첫 정점부터 반시계 방향으로 돌아가는 각 4 정점에 대한 ao값을 리턴, 
-	끝자리 비트부터 각 정점별 2비트 씩 (0~2), 8비트에 대해 ao 값이 할당.
-	
-	ao value : 0 = 인접한 블럭 없음,  1 = 대각선 방향에 인접한 블럭 존재, 2 = 정점을 포함하는 한 모서리에 인접한 블럭 존재.
-*/
-unsigned char Chunk::checkCorner(int x, int y, int z, int face)
-{
-	bool occludeLine[4] = {false};
-	bool occludePoint[4] = { false };
-	int dx1, dy1, dz1, dx2, dy2, dz2, nx, ny, nz, ax, ay, az;
-
-	switch (face) {
-	case 0: {
-		nx = x; ny = y - 1; nz = z;
-		dx1 = 0; dy1 = 0; dz1 = -1;
-		dx2 = 1; dy2 = 0; dz2 = 0;
-		break;
-	}
-	case 1: {
-		nx = x; ny = y + 1; nz = z;
-		dx1 = -1; dy1 = 0; dz1 = 0;
-		dx2 = 0; dy2 = 0; dz2 = 1;
-		break;
-	}
-	case 2: {
-		nx = x; ny = y; nz = z - 1;
-		dx1 = -1; dy1 = 0; dz1 = 0;
-		dx2 = 0; dy2 = 1; dz2 = 0;
-		break;
-	}
-	case 3: {
-		nx = x; ny = y; nz = z + 1;
-		dx1 = 0; dy1 = -1; dz1 = 0;
-		dx2 = 1; dy2 = 0; dz2 = 0;
-		break;
-	}
-	case 4: {
-		nx = x - 1; ny = y; nz = z;
-		dx1 = 0; dy1 = -1; dz1 = 0;
-		dx2 = 0; dy2 = 0; dz2 = 1;
-		break;
-	}
-	default: {
-		nx = x + 1; ny = y; nz = z;
-		dx1 = 0; dy1 = 0; dz1 = -1;
-		dx2 = 0; dy2 = 1; dz2 = 0;
-		break;
-	}
-	}
-
-	if (nx < 0 || nx >= CHUNK_SIZE || ny < 0 || ny >= CHUNK_SIZE || nz < 0 || nz >= CHUNK_SIZE)
-		return 0;
-	
-	int t1, t2;
-
-	int bit = -1;
-	for (int i = 1; i >= -1; i-=2) {
-		for (int j = 1; j <= 2; j++) {
-			bit++;
-			t1 = j % 2 * i;
-			t2 = j / 2 * i;
-			
-			ax = t1 * dx1 + t2 * dx2 + nx;
-			ay = t1 * dy1 + t2 * dy2 + ny;
-			az = t1 * dz1 + t2 * dz2 + nz;
-
-			if ( !(ax < 0 || ax >= CHUNK_SIZE || ay < 0 || ay >= CHUNK_SIZE || az < 0 || az >= CHUNK_SIZE) )
-				if (m_pBlocks[ay][az][ax].isActive())
-					occludeLine[bit] = true;
-
-
-			ax = i * dx1 + i * (2 * j - 3) * dx2 + nx;
-			ay = i * dy1 + i * (2 * j - 3) * dy2 + ny;
-			az = i * dz1 + i * (2 * j - 3) * dz2 + nz;
-
-			if (ax < 0 || ax >= CHUNK_SIZE || ay < 0 || ay >= CHUNK_SIZE || az < 0 || az >= CHUNK_SIZE)
-				continue;
-			if (m_pBlocks[ay][az][ax].isActive())
-				occludePoint[bit] = true;
-		}
-	}
-
-	unsigned char result = 0;
-	for (int i = 3; i >= 0; i--) {
-		result = result << 1;
-		if (occludeLine[i]|| occludeLine[(i+3)%4])
-			result += 1;
-		else if (occludePoint[i])
-			result += 1;
-	}
-	//if (result > 0) {
-	//	Debugger::getInstance()->writeLine(x, ", ", y, ", ", z);
-	//}
-	return result;
-}
-
-bool Chunk::checkAdjacent(int x, int y, int z, int face) {
-	int nx = 0; int ny = 0;int nz = 0;
-	switch (face) {
-	case 0: {
-		nx = x; ny = y - 1; nz = z;
-		break;
-	}
-	case 1: {
-		nx = x; ny = y + 1; nz = z;
-		break;
-	}
-	case 2: {
-		nx = x; ny = y; nz = z - 1;
-		break;
-	}
-	case 3: {
-		nx = x; ny = y; nz = z + 1;
-		break;
-	}
-	case 4: {
-		nx = x - 1; ny = y; nz = z;
-		break;
-	}
-	default: {
-		nx = x + 1; ny = y; nz = z;
-		break; 
-	}
-	}
-	if (nx < 0 || nx >= CHUNK_SIZE || ny < 0 || ny >= CHUNK_SIZE || nz < 0 || nz >= CHUNK_SIZE)
-		return false;
-	if (m_pBlocks[ny][nz][nx].isActive())
-		return true;
-	return false;
-}
 
 void Chunk::render() {
 	bind();
@@ -437,6 +186,18 @@ void Chunk::bind() {
 		glm::vec3(CHUNK_SIZE * m_chunkX, CHUNK_SIZE * m_chunkY, CHUNK_SIZE * m_chunkZ) * 0.66f));
 }
 
+void Chunk::updateAllMasks()
+{
+	for (int f = 0; f < 6; f++) {
+		for (int i = 0; i < CHUNK_SIZE; i++) {
+			for (int j = 0; j < CHUNK_SIZE; j++) {
+				updateCullingMask(f, i, j);
+				updateAOMask(f, i, j);
+			}
+		}
+	}
+}
+
 int Chunk::getPolygonNumber()
 {
 	return m_model->getNumberOfPolygons();
@@ -446,42 +207,257 @@ void Chunk::SetRenderMode(RenderMode mode)
 {
 	if (mode != m_rendermode) {
 		m_rendermode = mode;
-		needRefresh = true;
+		needRefreshMesh = true;
 	}
 }
 
-void Chunk::setBlock(int type, int x, int y, int z)
+void Chunk::setBlock(int type, int x, int y, int z, bool pendUpdate)
 {
+	needRefreshMesh = true;
+
 	m_pBlocks[y][z][x].setId(type);
-	m_existance_bitmask[0][0][x] |= 1 << y;
-	m_existance_bitmask[0][1][x] |= 1 << z;
+	m_existance_bitmask[0][z][x] |= (bitType)1 << y;
+	m_existance_bitmask[1][z][x] |= (bitType)1 << y;
+	m_existance_bitmask[2][x][y] |= (bitType)1 << z;
+	m_existance_bitmask[3][x][y] |= (bitType)1 << z;
+	m_existance_bitmask[4][y][z] |= (bitType)1 << x;
+	m_existance_bitmask[5][y][z] |= (bitType)1 << x;
 
-	m_existance_bitmask[0][0][y] |= 1 << z;
-	m_existance_bitmask[0][1][y] |= 1 << x;
-
-	m_existance_bitmask[0][0][z] |= 1 << y;
-	m_existance_bitmask[0][1][z] |= 1 << x;
-}
-
-void Chunk::setBlockEnabled(bool enabled, int x, int y, int z)
-{
-	m_pBlocks[y][z][x].setActive(enabled);
-	m_existance_bitmask[0][0][x] |= 1 << y;
-	m_existance_bitmask[0][1][x] |= 1 << z;
-
-	m_existance_bitmask[0][0][y] |= 1 << z;
-	m_existance_bitmask[0][1][y] |= 1 << x;
-
-	m_existance_bitmask[0][0][z] |= 1 << y;
-	m_existance_bitmask[0][1][z] |= 1 << x;
-	if (!enabled) {
-		m_existance_bitmask[0][0][x] ^= 1 << y;
-		m_existance_bitmask[0][1][x] ^= 1 << z;
-
-		m_existance_bitmask[0][0][y] ^= 1 << z;
-		m_existance_bitmask[0][1][y] ^= 1 << x;
-
-		m_existance_bitmask[0][0][z] ^= 1 << y;
-		m_existance_bitmask[0][1][z] ^= 1 << x;
+	if (!pendUpdate) {
+		updateAdjacentCullingMask(x,y,z);
+		updateAdjacentAO(x, y, z); 
+		updateAdjacentHorizontalMerge(x, y, z, type);
+	}
+	else {
+		needRefreshMask = true;
 	}
 }
+
+void Chunk::updateCullingMask(int face, int i, int j)
+{
+	bitType left_shift, right_shift;
+	left_shift = m_existance_bitmask[face][i][j];
+	if (face % 2 == 0) {
+		right_shift = (m_existance_bitmask[face + 1][i][j]<<1);
+	}
+	else {
+		right_shift = (m_existance_bitmask[face - 1][i][j]>>1);
+	}
+	m_block_cull_bitmask[face][i][j] = left_shift & (left_shift ^ right_shift);
+}
+
+void Chunk::updateAdjacentCullingMask(int x, int y, int z)
+{
+	updateCullingMask(0, z, x);
+	updateCullingMask(1, z, x);
+	updateCullingMask(2, x, y);
+	updateCullingMask(3, x, y);
+	updateCullingMask(4, y, z);
+	updateCullingMask(5, y, z);
+}
+
+void Chunk::updateAdjacentHorizontalMerge(int x, int y, int z, int type)
+{
+	updateHorizontalMerge(0, y, z, x, type);
+	updateHorizontalMerge(1, y, z, x, type);
+	updateHorizontalMerge(2, z, x, y, type);
+	updateHorizontalMerge(3, z, x, y, type);
+	updateHorizontalMerge(4, x, y, z, type);
+	updateHorizontalMerge(5, x, y, z, type);
+
+	for (int i = -1; i <= 1; i++) {
+		for (int j = -1; j <= 1; j++) {
+			for (int t = -1; t <= 1; t +=2) {
+				updateHorizontalMerge(0, y + t, z + i, x + j);
+				updateHorizontalMerge(1, y + t, z + i, x + j);
+				updateHorizontalMerge(2, z + t, x + i, y + j);
+				updateHorizontalMerge(3, z + t, x + i, y + j);
+				updateHorizontalMerge(4, x + t, y + i, z + j);
+				updateHorizontalMerge(5, x + t, y + i, z + j);
+			}
+		}
+	}
+}
+
+void Chunk::updateAdjacentAO(int x, int y, int z)
+{
+	for (int i = -1; i <= 1 ; i++) {
+		for (int j = -1; j <= 1; j++) {
+			updateAOMask(0, z + i, x + j);
+			updateAOMask(1, z + i, x + j);
+			updateAOMask(2, x + i, y + j);
+			updateAOMask(3, x + i, y + j);
+			updateAOMask(4, y + i, z + j);
+			updateAOMask(5, y + i, z + j);
+		}
+	}
+}
+
+
+void Chunk::updateAOMask(int face, int i, int j)
+{
+	if (i < 0 || i >= CHUNK_SIZE || j < 0 || j >= CHUNK_SIZE)
+		return;
+	bitType a0,a1,a2,a3;
+	bitType c0,c1,c2,c3;
+	bitType r0,r1,r2,r3;
+
+	if (face % 2 == 0) {
+		a0 = getExsistanceBitmask(face, i - 1, j) << 1;
+		a1 = getExsistanceBitmask(face, i, j + 1) << 1;
+		a2 = getExsistanceBitmask(face, i + 1, j) << 1;
+		a3 = getExsistanceBitmask(face, i, j - 1) << 1;
+
+		c0 = getExsistanceBitmask(face, i - 1, j - 1) << 1;
+		c1 = getExsistanceBitmask(face, i - 1, j + 1) << 1;
+		c2 = getExsistanceBitmask(face, i + 1, j + 1) << 1;
+		c3 = getExsistanceBitmask(face, i + 1, j - 1) << 1;
+	}
+	else {
+		a0 = getExsistanceBitmask(face, i, j - 1) >> 1;
+		a1 = getExsistanceBitmask(face, i + 1, j) >> 1;
+		a2 = getExsistanceBitmask(face, i, j + 1) >> 1;
+		a3 = getExsistanceBitmask(face, i - 1, j) >> 1;
+
+		c0 = getExsistanceBitmask(face, i - 1, j - 1) >> 1;
+		c1 = getExsistanceBitmask(face, i + 1, j - 1) >> 1;
+		c2 = getExsistanceBitmask(face, i + 1, j + 1) >> 1;
+		c3 = getExsistanceBitmask(face, i - 1, j + 1) >> 1;
+	}
+
+	r0 = a3 | a0 | c0;
+	r1 = a0 | a1 | c1;
+	r2 = a1 | a2 | c2;
+	r3 = a2 | a3 | c3;
+	for (int x = 0; x < 4; x++) {
+		m_ao_bitmask[x][face][i][j] = 0u;
+		m_ao_bitmask[x][face][i][j] = 0u;
+		m_ao_bitmask[x][face][i][j] = 0u;
+		m_ao_bitmask[x][face][i][j] = 0u;
+		for (int y = 0; y < CHUNK_SIZE/4; y++) {
+			auto bit0 = (r0 >> (y + 4*x)) & 1u;
+			auto bit1 = (r1 >> (y + 4*x)) & 1u;
+			auto bit2 = (r2 >> (y + 4*x)) & 1u;
+			auto bit3 = (r3 >> (y + 4*x)) & 1u;
+			m_ao_bitmask[x][face][i][j] |= (bit0 << (y * 4));
+			m_ao_bitmask[x][face][i][j] |= (bit1 << (y * 4 + 1));
+			m_ao_bitmask[x][face][i][j] |= (bit2 << (y * 4 + 2));
+			m_ao_bitmask[x][face][i][j] |= (bit3 << (y * 4 + 3));
+		}
+	}
+}
+
+void Chunk::updateHorizontalMerge(int face, int depth, int i, int j, int type)
+{
+	if (i < 0 || i >= CHUNK_SIZE || j < 0 || j >= CHUNK_SIZE|| depth <0 || depth>= CHUNK_SIZE)
+		return;
+	int x = getX(face, depth, i, j);
+	int y = getY(face, depth, i, j);
+	int z = getZ(face, depth, i, j);
+
+	int id = ( ((m_block_cull_bitmask[face][i][j] >> depth) & 1) > 0) ? type : -1;
+	unsigned int ao = getAOBitmask(face, i, j, depth);
+
+	m_horizontal_merge[face][depth][i][j] = 
+		horizontalMergeUpdatePositivePortion(face, depth, i, j + 1, id, ao,
+		x + xPerFace[face][2], y + yPerFace[face][2], z + zPerFace[face][2]);
+
+	horizontalMergeUpdateNegativePortion(face, depth, i, j - 1, id, ao,
+		x - xPerFace[face][2], y - yPerFace[face][2], z - zPerFace[face][2],
+		m_horizontal_merge[face][depth][i][j]);
+}
+
+void Chunk::updateHorizontalMerge(int face, int depth, int i, int j)
+{
+	if (i < 0 || i >= CHUNK_SIZE || j < 0 || j >= CHUNK_SIZE || depth < 0 || depth >= CHUNK_SIZE)
+		return;
+
+	int x = getX(face, depth, i, j);
+	int y = getY(face, depth, i, j);
+	int z = getZ(face, depth, i, j);
+	updateHorizontalMerge(face, depth, i, j, m_pBlocks[y][z][x].getId());
+}
+
+void Chunk::horizontalMergeUpdateNegativePortion(int face, int depth, int i, int j, int type, unsigned char _ao, int x, int y, int z, int value)
+{
+	if (j < 0)
+		return;
+
+	int id = ( ((m_block_cull_bitmask[face][i][j] >> depth) & 1) > 0) ? m_pBlocks[y][z][x].getId() : -1;
+	unsigned int ao = getAOBitmask(face, i, j, depth);
+	bool same = (type == id && ao ==_ao);
+
+	if (same) {
+		m_horizontal_merge[face][depth][i][j] = value + 1;
+
+		horizontalMergeUpdateNegativePortion(face, depth, i, j - 1, type, ao,
+			x - xPerFace[face][2], y - yPerFace[face][2], z - zPerFace[face][2],
+			m_horizontal_merge[face][depth][i][j]);
+	}
+	else {
+		if (m_horizontal_merge[face][depth][i][j] > 1) {
+			m_horizontal_merge[face][depth][i][j] = 1;
+			horizontalMergeUpdateNegativePortion(face, depth, i, j - 1, id, ao,
+				x - xPerFace[face][2], y - yPerFace[face][2], z - zPerFace[face][2],
+				m_horizontal_merge[face][depth][i][j]);
+		}
+	}
+}
+
+unsigned char Chunk::horizontalMergeUpdatePositivePortion(int face, int depth, int i, int j, int type, unsigned char _ao, int x, int y, int z)
+{
+	if (j >= CHUNK_SIZE)
+		return 1;
+
+	int id = (((m_block_cull_bitmask[face][i][j] >> depth) & 1) > 0) ? m_pBlocks[y][z][x].getId() : -1;
+	unsigned int ao = getAOBitmask(face, i, j, depth);
+	bool same = (type == id && _ao == ao);
+
+	if (same) {
+		return m_horizontal_merge[face][depth][i][j] + 1;
+	}
+	else {
+		return 1;
+	}
+}
+
+unsigned int Chunk::getAOBitmask(int face, int i, int j, int depth)
+{
+	int subIdx = depth / (CHUNK_SIZE / 4);
+	int bitStart = (depth % (CHUNK_SIZE / 4)) * 4;	
+
+	return (m_ao_bitmask[subIdx][face][i][j] >> bitStart) & 15u;
+}
+
+void Chunk::setBlockEnabled(bool enabled, int x, int y, int z, bool pendUpdate)
+{
+	if (m_pBlocks[y][z][x].isActive() == enabled)
+		return;
+
+	needRefreshMesh = true;
+	m_pBlocks[y][z][x].setActive(enabled);
+
+	m_existance_bitmask[0][z][x] |= (bitType)1 << y;
+	m_existance_bitmask[1][z][x] |= (bitType)1 << y;
+	m_existance_bitmask[2][x][y] |= (bitType)1 << z;
+	m_existance_bitmask[3][x][y] |= (bitType)1 << z;
+	m_existance_bitmask[4][y][z] |= (bitType)1 << x;
+	m_existance_bitmask[5][y][z] |= (bitType)1 << x;
+
+	if (!enabled) {
+		m_existance_bitmask[0][z][x] ^= (bitType)1 << y;
+		m_existance_bitmask[1][z][x] ^= (bitType)1 << y;
+		m_existance_bitmask[2][x][y] ^= (bitType)1 << z;
+		m_existance_bitmask[3][x][y] ^= (bitType)1 << z;
+		m_existance_bitmask[4][y][z] ^= (bitType)1 << x;
+		m_existance_bitmask[5][y][z] ^= (bitType)1 << x;
+	}
+
+	if (!pendUpdate) {
+		updateAdjacentCullingMask(x, y, z);
+	}
+	else {
+		needRefreshMask = true;
+	}
+}
+

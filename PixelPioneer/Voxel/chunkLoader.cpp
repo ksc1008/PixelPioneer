@@ -101,6 +101,7 @@ void ChunkLoader::updateChunks()
 		}
 	}
 
+
 	auto endTime = glfwGetTime();
 	Debugger::getInstance()->writeLine("updated chunks. elapsed time: ",(endTime-startTime)*1000,"ms",", tris: ",count);
 }

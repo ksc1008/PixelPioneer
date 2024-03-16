@@ -21,7 +21,7 @@ void Camera::applyProjectionMatrix()
 
 Camera::Camera()
 {
-	m_position = glm::vec3(3, 10, 3);
+	m_position = glm::vec3(3, 10, 0);
 	setFrameAspect(1280, 720);
 	setFieldOfView(45.0f);
 	setViewPlane(0.1f, 1000);
