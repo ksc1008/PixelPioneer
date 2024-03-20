@@ -79,7 +79,6 @@ void Chunk::update(float dt, bool createAO)
 
 void Chunk::createFastMesh(bool createAO) {
 	m_model->startBuild();
-	auto ao = TemporaryStorage::getInstance()->ao;
 	int x, y, z;
 	bitType ao0, ao1, ao2, ao3;
 
@@ -177,6 +176,12 @@ void Chunk::createGreedyMesh(bool createAO) {
 
 void Chunk::render() {
 	bind();
+	auto state = getRenderState();
+	if (state == NOTLOADED)
+		return;
+	if (state == ENDUPDATE) {
+		m_model->endBuild();
+	}
 	m_model->renderMesh();
 }
 
@@ -193,9 +198,27 @@ void Chunk::updateAllMasks()
 			for (int j = 0; j < CHUNK_SIZE; j++) {
 				updateCullingMask(f, i, j);
 				updateAOMask(f, i, j);
+				for(int d = 0;d<CHUNK_SIZE;d++)
+					updateHorizontalMerge(f, d, i, j);
 			}
 		}
 	}
+}
+
+void Chunk::setRenderState(RenderState state)
+{
+	meshStateMutex.lock();
+	m_currentRenderState = state;
+	meshStateMutex.unlock();
+}
+
+RenderState Chunk::getRenderState()
+{
+
+	meshStateMutex.lock();
+	RenderState result = m_currentRenderState;
+	meshStateMutex.unlock();
+	return result;
 }
 
 int Chunk::getPolygonNumber()

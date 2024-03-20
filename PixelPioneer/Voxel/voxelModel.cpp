@@ -8,11 +8,10 @@ void VoxelModel::startBuild()
     startTime = glfwGetTime();
     if (VAO == 0) {
         glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        TemporaryStorage::getInstance()->inititateCube(Chunk::CHUNK_SIZE * Chunk::CHUNK_SIZE * Chunk::CHUNK_SIZE * VERTEX_SIZE * QUAD_VERTICES);
+        glGenBuffers(1, &VBO);      
     }
     buffer.clear();
-	size = 0;
+	temp_size = 0;
 }
 
 unsigned int VoxelModel::getAOBit(unsigned int bitmask, int idx) {
@@ -22,10 +21,10 @@ unsigned int VoxelModel::getAOBit(unsigned int bitmask, int idx) {
 void VoxelModel::addQuad(int x, int y, int z, int type, int face, int w, int h, unsigned int ao) {
     int tri_idx[6] = { 0, 1,2,2,3,0};
     int flip_idx[6] = { 1,2,4,4,5,1 };
-    int idx = size;
+    int idx = temp_size;
     bool flip = false;
-    const unsigned int* cube = TemporaryStorage::getInstance()->cube;
-    const unsigned int* uvs = TemporaryStorage::getInstance()->uvs;
+    const unsigned int* cube = TemporaryStorage::cube;
+    const unsigned int* uvs = TemporaryStorage::uvs;
 
     if (getAOBit(ao,1) + getAOBit(ao, 3) > getAOBit(ao, 0) + getAOBit(ao, 2)) {
         flip = true;
@@ -65,9 +64,6 @@ void VoxelModel::addQuad(int x, int y, int z, int type, int face, int w, int h, 
                 buffer.push_back(h + w * 65536);
             else 
                 buffer.push_back(w + h * 65536);
-            //buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 0] = cube[18 * face + 3 * i + 0] + x * 2;
-            //buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 1] = cube[18 * face + 3 * i + 1] + y * 2;
-            //buffer[idx * VERTEX_SIZE * QUAD_VERTICES + i * VERTEX_SIZE + 2] = cube[18 * face + 3 * i + 2] + z * 2;
 
             /*
                 special bit in vertex shader
@@ -95,7 +91,7 @@ void VoxelModel::addQuad(int x, int y, int z, int type, int face, int w, int h, 
                 buffer.push_back(w + h * 65536);
         }
     }
-    size++;
+    temp_size++;
 }
 
 void VoxelModel::endBuild()
@@ -114,7 +110,7 @@ void VoxelModel::endBuild()
     endTime = glfwGetTime();
 
     num_polygons = size * 2;
-
+    size = temp_size;
     buffer.clear();
     //Debugger::getInstance()->writeLine("mesh build done. ", "polygon num: ", size * 2, ", elapsed time; ",(endTime - startTime)*1000,"ms");
 }

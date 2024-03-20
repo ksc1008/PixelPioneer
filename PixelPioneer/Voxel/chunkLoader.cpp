@@ -21,12 +21,14 @@ void ChunkLoader::generateLargeChunk(int x, int y, int z, int n) {
 			for (int land_i = 0; land_i < Chunk::CHUNK_SIZE; land_i++) {
 				for (int land_j = 0; land_j < Chunk::CHUNK_SIZE; land_j++) {
 					for (int k = 0; k <= landscape[Chunk::CHUNK_SIZE*j + land_j][Chunk::CHUNK_SIZE * i + land_i]; k++) {
-						m_chunks[0][z + j][x + i]->setBlock(0, land_i, k, land_j);
+						m_chunks[0][z + j][x + i]->setBlock(0, land_i, k, land_j, true);
 					}
 				}
 			}
+			m_chunks[0][z + j][x + i]->updateAllMasks();
 		}
 	}
+
 }
 
 void ChunkLoader::setWorldSize(int w, int h, int d)

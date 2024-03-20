@@ -153,6 +153,11 @@
     <ClCompile Include="Voxel\block.cpp" />
     <ClCompile Include="Voxel\chunk.cpp" />
     <ClCompile Include="Voxel\texture.cpp" />
+    <ClCompile Include="WorkerThread\channel.cpp" />
+    <ClCompile Include="WorkerThread\chunkLoadRequest.cpp" />
+    <ClCompile Include="WorkerThread\chunkUpdateRequest.cpp" />
+    <ClCompile Include="WorkerThread\request.cpp" />
+    <ClCompile Include="WorkerThread\workerThread.cpp" />
     <ClCompile Include="World\perlin.cpp" />
     <ClCompile Include="World\world_generator.cpp" />
   </ItemGroup>
@@ -173,6 +178,11 @@
     <ClInclude Include="Voxel\block.h" />
     <ClInclude Include="Voxel\chunk.h" />
     <ClInclude Include="Voxel\texture.h" />
+    <ClInclude Include="WorkerThread\channel.h" />
+    <ClInclude Include="WorkerThread\chunkLoadRequest.h" />
+    <ClInclude Include="WorkerThread\chunkUpdateRequest.h" />
+    <ClInclude Include="WorkerThread\request.h" />
+    <ClInclude Include="WorkerThread\workerThread.h" />
     <ClInclude Include="World\perlin.h" />
     <ClInclude Include="World\world_generator.h" />
   </ItemGroup>

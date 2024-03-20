@@ -3,6 +3,7 @@
 
 class VoxelModel {
 	int size;
+	int temp_size;
 	int num_polygons = 0;
 	unsigned int VBO, VAO = 0;
 

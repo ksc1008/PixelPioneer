@@ -57,7 +57,6 @@ int initiateGL() {
     glfwSetCursorPosCallback(window, mouse_callback);
 
     stbi_set_flip_vertically_on_load(true);
-    //ShaderLoader::getInstance()->getDefaultShader();
     return 0;
 }
 
@@ -65,13 +64,8 @@ ChunkLoader cl;
 
 int openWindow()
 {
-    Light light = Light(DIRECTIONAL,glm::vec3(-1,-4,-2),0.8);
-    //int chunk_count = 16;
-    //Chunk** chunks = new Chunk*[chunk_count* chunk_count];
-    //for (int i = 0; i < chunk_count * chunk_count; i++) {
-    //    chunks[i] = new Chunk(i / chunk_count - chunk_count/2, 0, i % chunk_count - chunk_count / 2);
-    //}
-    int sz = 4;
+    Light light = Light(DIRECTIONAL,glm::vec3(-1,-4,-2),0.9);
+    int sz = 16;
     cl.setWorldSize(sz, 1, sz);
     cl.generateLargeChunk(0, 0, 0, sz);
     cl.updateChunks();
@@ -81,14 +75,6 @@ int openWindow()
     glEnable(GL_MULTISAMPLE);
     glCullFace(GL_BACK);
     
-
-    // uncomment this call to draw in wireframe polygons.
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    // render loop
-    // -----------
-    //ShaderLoader::getInstance()->getDefaultShader()->setInt("texture1", 0);
-    //updateChunks(chunks, chunk_count * chunk_count);
     glActiveTexture(GL_TEXTURE0);
     while (!glfwWindowShouldClose(window))
     {
@@ -104,17 +90,13 @@ int openWindow()
 
         ShaderLoader::getInstance()->getDefaultShader()->use();
         light.addToShader();
-        //ShaderLoader::getInstance()->getDefaultShader()->setInt("texArray", 1);
         vt->bindTextures();
         ControlManager::getInstance()->applyCameraToShader();
         cl.renderChunks(lineRendering ? GL_FRONT_AND_BACK : GL_FRONT_AND_BACK, lineRendering?GL_LINE: GL_FILL);
-        //renderChunks(chunks, chunk_count * chunk_count);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    //delete[] chunks;
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -182,7 +164,6 @@ void processInput(GLFWwindow* window)
     }
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {

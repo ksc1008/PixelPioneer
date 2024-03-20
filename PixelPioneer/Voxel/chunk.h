@@ -7,7 +7,7 @@
 #include <mutex>
 
 enum RenderMode {FAST, OPTIMAL};
-enum RenderState{UPDATING, READY, RENDERING, NEEDUPDATE, NOTLOADED};
+enum RenderState{UPDATING, UPTODATE, ENDUPDATE, NEEDUPDATE, NOTLOADED};
 typedef uint_fast64_t bitType;
 
 class Chunk {
@@ -15,7 +15,7 @@ class Chunk {
 	static const short xPerFace[6][3];
 	static const short yPerFace[6][3];
 	static const short zPerFace[6][3];
-	std::mutex meshUpdateMutex;
+	std::mutex meshStateMutex;
 	int m_chunkX, m_chunkY, m_chunkZ;
 	VoxelModel* m_model;
 	RenderMode m_rendermode = OPTIMAL;
@@ -33,6 +33,9 @@ public:
 	void setBlockEnabled(bool enabled, int x, int y, int z, bool pendUpdate = false);
 	void bind();
 	void updateAllMasks();
+
+	void setRenderState(RenderState state);
+	RenderState getRenderState();
 
 	int getPolygonNumber();
 	void SetRenderMode(RenderMode mode);
