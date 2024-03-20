@@ -3,6 +3,7 @@
 #include "workerThread.h"
 
 const int Channel::THREAD_COUNT = getProperThread();
+Channel Channel::_chunkUpdateChannel;
 
 int getProperThread() {
 	auto tc = std::thread::hardware_concurrency();
@@ -15,6 +16,7 @@ int getProperThread() {
 Channel::Channel()
 {
 	std::cout << "THREAD Count: " << THREAD_COUNT << std::endl;
+	startChannel();
 }
 
 void Channel::startChannel()
@@ -36,10 +38,9 @@ int Channel::getAvailableChannel()
 	availableThreadsStackMutex.lock();
 
 	if (!availableThreads.empty()) {
-		availableThreadsStackMutex.unlock();
-		return availableThreads.top();
+		result = availableThreads.top();
+		availableThreads.pop();
 	}
-	availableThreads.pop();
 
 	availableThreadsStackMutex.unlock();
 	return result;
@@ -49,7 +50,9 @@ void Channel::setChannelAvailable(int channel)
 {
 	availableThreadsStackMutex.lock();
 
-	availableThreads.push(channel);
+	if (!invokeFirstRequest(channel)) {
+		availableThreads.push(channel);
+	}
 
 	availableThreadsStackMutex.unlock();
 }
@@ -74,19 +77,20 @@ Channel::~Channel()
 	}
 }
 
-void Channel::invokeFirstRequest()
+bool Channel::invokeFirstRequest()
 {
 	int id = getAvailableChannel();	
-	invokeFirstRequest(id);
+	return invokeFirstRequest(id);
 }
 
-void Channel::invokeFirstRequest(int channel)
+bool Channel::invokeFirstRequest(int channel)
 {
 	auto queue = dequeueRequest();
 	if (queue == nullptr)
-		return;
+		return false;
 
 	invokeRequest(channel, queue);
+	return true;
 }
 
 void Channel::invokeRequest(int id, Request* request)
@@ -115,5 +119,5 @@ Request* Channel::dequeueRequest()
 
 	requestQueueMutex.unlock();
 
-	return nullptr;
+	return queue;
 }

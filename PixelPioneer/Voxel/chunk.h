@@ -19,7 +19,7 @@ class Chunk {
 	int m_chunkX, m_chunkY, m_chunkZ;
 	VoxelModel* m_model;
 	RenderMode m_rendermode = OPTIMAL;
-	RenderState m_currentRenderState = NEEDUPDATE;
+	RenderState m_currentRenderState = NOTLOADED;
 	bool m_ao_built = false;
 	
 public:
@@ -27,6 +27,7 @@ public:
 	Chunk(int x, int y, int z);
 	~Chunk();
 	void update(float dt, bool createAO = true);
+	void finishUpdate();
 	void render();
 
 	void setBlock(int type, int x, int y, int z, bool pendUpdate = false);

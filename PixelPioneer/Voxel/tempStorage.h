@@ -6,5 +6,5 @@ class TemporaryStorage {
 
 public:
     static const unsigned int cube[108];
-    static const unsigned int* uvs;
+    static const unsigned int uvs[36];
 };

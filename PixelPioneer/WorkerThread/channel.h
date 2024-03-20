@@ -9,6 +9,8 @@ class WorkerThread;
 class Request;
 
 class Channel {
+	static Channel _chunkUpdateChannel;
+
 	std::mutex availableThreadsStackMutex;
 	std::mutex requestQueueMutex;
 
@@ -19,6 +21,8 @@ class Channel {
 	std::stack<int> availableThreads;
 
 public:
+	static Channel* GetChunkUpdateChannel() { return &_chunkUpdateChannel; }
+
 	Channel();
 	void startChannel();
 	int getAvailableChannel();
@@ -27,8 +31,8 @@ public:
 	~Channel();
 
 private:
-	void invokeFirstRequest();
-	void invokeFirstRequest(int channel);
+	bool invokeFirstRequest();
+	bool invokeFirstRequest(int channel);
 	void invokeRequest(int id, Request* request);
 
 	void enqueueRequest(Request* item);

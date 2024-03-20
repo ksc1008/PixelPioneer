@@ -53,7 +53,7 @@ const unsigned int TemporaryStorage::cube[108] = {
         1, 0, 0
 };
 
-const unsigned int TemporaryStorage::cube[36] = {
+const unsigned int TemporaryStorage::uvs[36] = {
     // Bottom face
         2,
         0,

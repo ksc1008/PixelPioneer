@@ -6,10 +6,6 @@
 void VoxelModel::startBuild()
 {
     startTime = glfwGetTime();
-    if (VAO == 0) {
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);      
-    }
     buffer.clear();
 	temp_size = 0;
 }
@@ -96,10 +92,14 @@ void VoxelModel::addQuad(int x, int y, int z, int type, int face, int w, int h, 
 
 void VoxelModel::endBuild()
 {
+    if (VAO == 0) {
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+    }
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(unsigned int) * size * VERTEX_SIZE * QUAD_VERTICES, &buffer[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(unsigned int) * buffer.size(), &buffer.front(), GL_STATIC_DRAW);
 
     // position attribute
     glVertexAttribIPointer(0, 3, GL_UNSIGNED_INT, 3 * sizeof(unsigned int), (void*)0);
@@ -112,7 +112,6 @@ void VoxelModel::endBuild()
     num_polygons = size * 2;
     size = temp_size;
     buffer.clear();
-    //Debugger::getInstance()->writeLine("mesh build done. ", "polygon num: ", size * 2, ", elapsed time; ",(endTime - startTime)*1000,"ms");
 }
 
 void VoxelModel::renderMesh()

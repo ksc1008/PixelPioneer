@@ -66,15 +66,16 @@ Chunk::~Chunk() {
 
 void Chunk::update(float dt, bool createAO)
 {
-	if (needRefreshMesh || createAO != m_ao_built) {
-		
-		if (m_rendermode == OPTIMAL)
-			createGreedyMesh(createAO);
-		else
-			createFastMesh(createAO);
-		needRefreshMesh = false;
-		m_ao_built = createAO;
-	}
+	if (getRenderState() == UPDATING)
+		return;
+	//setRenderState(UPDATING);
+	if (m_rendermode == OPTIMAL)
+		createGreedyMesh(createAO);
+	else
+		createFastMesh(createAO);
+	needRefreshMesh = false;
+	m_ao_built = createAO;
+	setRenderState(ENDUPDATE);
 }
 
 void Chunk::createFastMesh(bool createAO) {
@@ -97,13 +98,17 @@ void Chunk::createFastMesh(bool createAO) {
 			}
 		}
 	}
+}
+
+void Chunk::finishUpdate()
+{
 	m_model->endBuild();
+	setRenderState(UPTODATE);
 }
 
 void Chunk::createGreedyMesh(bool createAO) {
 
 	int meshingType = 0;
-	bool done = false;
 
 	m_model->startBuild();
 	unsigned short baked_mesh_widths[CHUNK_SIZE] = { 0u };
@@ -169,20 +174,20 @@ void Chunk::createGreedyMesh(bool createAO) {
 			} while (min_width_j < CHUNK_SIZE);
 		}
 	}
-
-	m_model->endBuild();
 }
 
 
 void Chunk::render() {
-	bind();
 	auto state = getRenderState();
 	if (state == NOTLOADED)
 		return;
 	if (state == ENDUPDATE) {
-		m_model->endBuild();
+		finishUpdate();
 	}
-	m_model->renderMesh();
+	if (state == UPDATING || state == UPTODATE) {
+		bind();
+		m_model->renderMesh();
+	}
 }
 
 void Chunk::bind() {

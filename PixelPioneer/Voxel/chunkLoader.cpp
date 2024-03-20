@@ -2,6 +2,9 @@
 #include "../World/world_generator.h"
 #include "../debug.h"
 #include "../Graphics/shaderLoader.h"
+#include "../WorkerThread/chunkUpdateRequest.h"
+#include "../WorkerThread/chunkLoadRequest.h"
+#include "../WorkerThread/channel.h"
 
 void ChunkLoader::generateChunks(int w, int h, int d)
 {
@@ -96,8 +99,9 @@ void ChunkLoader::updateChunks()
 		for (int j = 0; j < m_depth; j++) {
 			for (int k = 0; k < m_width; k++) {
 				if (loaded[i][j][k]) {
-					m_chunks[i][j][k]->update(0,m_ao_enabled);
-					count += m_chunks[i][j][k]->getPolygonNumber();
+					auto rq = new ChunkLoadRequest(*m_chunks[i][j][k]);
+					Channel::GetChunkUpdateChannel()->executeRequest(rq);
+					//m_chunks[i][j][k]->update(0,m_ao_enabled);
 				}
 			}
 		}
@@ -105,7 +109,7 @@ void ChunkLoader::updateChunks()
 
 
 	auto endTime = glfwGetTime();
-	Debugger::getInstance()->writeLine("updated chunks. elapsed time: ",(endTime-startTime)*1000,"ms",", tris: ",count);
+	//Debugger::getInstance()->writeLine("updated chunks. elapsed time: ",(endTime-startTime)*1000,"ms",", tris: ",count);
 }
 
 void ChunkLoader::switchMeshUpdateMode() {

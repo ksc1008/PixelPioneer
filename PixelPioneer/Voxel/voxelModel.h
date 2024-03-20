@@ -7,7 +7,7 @@ class VoxelModel {
 	int num_polygons = 0;
 	unsigned int VBO, VAO = 0;
 
-	std::vector<int> buffer;
+	std::vector<unsigned int> buffer;
 	double startTime = 0;
 	double endTime = 0;
 	unsigned int getAOBit(unsigned int bitmask, int idx);

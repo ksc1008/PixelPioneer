@@ -1,5 +1,6 @@
 #include "workerThread.h"
 #include "channel.h"
+#include <iostream>
 #include "request.h"
 
 WorkerThread::~WorkerThread()
