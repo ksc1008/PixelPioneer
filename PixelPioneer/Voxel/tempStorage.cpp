@@ -71,34 +71,34 @@ const unsigned int TemporaryStorage::uvs[36] = {
         2,
 
         // Back face
-        2,
-        3,
-        1,
-        1,
         0,
         2,
+        3,
+        3,
+        1,
+        0,
 
         // Front face
         0,
-        2,
-        3,
-        3,
         1,
+        3,
+        3,
+        2,
         0,
 
         // Left face
         0,
-        2,
-        3,
-        3,
         1,
+        3,
+        3,
+        2,
         0,
 
         // Right face
-        2,
+        1,
         3,
-        1,
-        1,
+        2,
+        2,
         0,
-        2
+        1
 };

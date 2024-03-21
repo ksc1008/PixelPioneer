@@ -140,8 +140,10 @@
     <ClCompile Include="Graphics\light.cpp" />
     <ClCompile Include="Manager\controlManager.cpp" />
     <ClCompile Include="Utils\fpsCounter.cpp" />
+    <ClCompile Include="Voxel\blockDataStorage.cpp" />
     <ClCompile Include="Voxel\chunkLoader.cpp" />
     <ClCompile Include="Voxel\tempStorage.cpp" />
+    <ClCompile Include="Voxel\texturemap.cpp" />
     <ClCompile Include="Voxel\voxelModel.cpp" />
     <ClCompile Include="Basics\camera.cpp" />
     <ClCompile Include="Graphics\glLoader.cpp" />
@@ -167,8 +169,10 @@
     <ClInclude Include="Graphics\light.h" />
     <ClInclude Include="Manager\controlManager.h" />
     <ClInclude Include="Utils\fpsCounter.h" />
+    <ClInclude Include="Voxel\blockDataStorage.h" />
     <ClInclude Include="Voxel\chunkLoader.h" />
     <ClInclude Include="Voxel\tempStorage.h" />
+    <ClInclude Include="Voxel\texturemap.h" />
     <ClInclude Include="Voxel\voxelModel.h" />
     <ClInclude Include="Basics\camera.h" />
     <ClInclude Include="Graphics\graphics.h" />

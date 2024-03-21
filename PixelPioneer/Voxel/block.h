@@ -1,4 +1,5 @@
 #pragma once
+#include "blockDataStorage.h"
 
 class Block {
 public: Block();
@@ -8,6 +9,8 @@ public: Block();
 	  bool isTransparent();
 	  int getId() { return blockId; }
 	  void setId(int id) { blockId = id; setActive(true); }
+	  int getBlockTex(int side) { 	
+		  return BlockDataStorage::getInstance()->getBlock(blockId)->m_textures[side]; }
 
 private:
 	bool m_active;

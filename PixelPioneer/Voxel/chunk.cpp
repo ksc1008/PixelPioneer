@@ -91,7 +91,7 @@ void Chunk::createFastMesh(bool createAO) {
 				for (int depth = 0; depth < CHUNK_SIZE; depth++) {
 					if (m_block_cull_bitmask[face][i][j] & mask) {
 						x = getX(face, depth, i, j); y = getY(face, depth, i, j); z = getZ(face, depth, i, j);
-						m_model->addQuad(x, y, z, m_pBlocks[y][z][x].getId(), face, 1, 1, getAOBitmask(face,i,j,depth));
+						m_model->addQuad(x, y, z, m_pBlocks[y][z][x].getBlockTex(face), face, 1, 1, getAOBitmask(face,i,j,depth));
 					}
 					mask <<= 1;
 				}
@@ -107,8 +107,6 @@ void Chunk::finishUpdate()
 }
 
 void Chunk::createGreedyMesh(bool createAO) {
-
-	int meshingType = 0;
 
 	m_model->startBuild();
 	unsigned short baked_mesh_widths[CHUNK_SIZE] = { 0u };
@@ -128,7 +126,7 @@ void Chunk::createGreedyMesh(bool createAO) {
 				const int x = getX(f, depth, i, j);
 				const int y = getY(f, depth, i, j);
 				const int z = getZ(f, depth, i, j);
-				const int mergeType = (((m_block_cull_bitmask[f][i][j] >> depth) & 1) == 0)?-1:m_pBlocks[y][z][x].getId();
+				const int mergeType = (((m_block_cull_bitmask[f][i][j] >> depth) & 1) == 0)?-1:m_pBlocks[y][z][x].getBlockTex(f);
 				const unsigned int mergeAO = getAOBitmask(f, i, j, depth);
 
 				i++;
@@ -153,14 +151,14 @@ void Chunk::createGreedyMesh(bool createAO) {
 
 						if ((((m_block_cull_bitmask[f][i][j] >> depth) & 1) == 0)
 							|| getAOBitmask(f, i, j, depth) != mergeAO
-							|| m_pBlocks[dy][dz][dx].getId() != mergeType
+							|| m_pBlocks[dy][dz][dx].getBlockTex(f) != mergeType
 							|| m_horizontal_merge[f][depth][i][j] != width
 							|| baked_mesh_widths[i] != j) {
 							break;
 						}
 						height++;
 					}
-					m_model->addQuad(x, y, z, meshingType, f, height, width, mergeAO);
+					m_model->addQuad(x, y, z, mergeType, f, height, width, mergeAO);
 				}
 
 				for (int t = 0; t < height; t++) {
@@ -256,7 +254,7 @@ void Chunk::setBlock(int type, int x, int y, int z, bool pendUpdate)
 	if (!pendUpdate) {
 		updateAdjacentCullingMask(x,y,z);
 		updateAdjacentAO(x, y, z); 
-		updateAdjacentHorizontalMerge(x, y, z, type);
+		updateAdjacentHorizontalMerge(x, y, z);
 	}
 	else {
 		needRefreshMask = true;
@@ -286,14 +284,14 @@ void Chunk::updateAdjacentCullingMask(int x, int y, int z)
 	updateCullingMask(5, y, z);
 }
 
-void Chunk::updateAdjacentHorizontalMerge(int x, int y, int z, int type)
+void Chunk::updateAdjacentHorizontalMerge(int x, int y, int z)
 {
-	updateHorizontalMerge(0, y, z, x, type);
-	updateHorizontalMerge(1, y, z, x, type);
-	updateHorizontalMerge(2, z, x, y, type);
-	updateHorizontalMerge(3, z, x, y, type);
-	updateHorizontalMerge(4, x, y, z, type);
-	updateHorizontalMerge(5, x, y, z, type);
+	updateHorizontalMerge(0, y, z, x);
+	updateHorizontalMerge(1, y, z, x);
+	updateHorizontalMerge(2, z, x, y);
+	updateHorizontalMerge(3, z, x, y);
+	updateHorizontalMerge(4, x, y, z);
+	updateHorizontalMerge(5, x, y, z);
 
 	for (int i = -1; i <= 1; i++) {
 		for (int j = -1; j <= 1; j++) {
@@ -377,13 +375,10 @@ void Chunk::updateAOMask(int face, int i, int j)
 	}
 }
 
-void Chunk::updateHorizontalMerge(int face, int depth, int i, int j, int type)
+void Chunk::updateHorizontalMerge(int face, int depth, int i, int j, int x, int y, int z, int type)
 {
 	if (i < 0 || i >= CHUNK_SIZE || j < 0 || j >= CHUNK_SIZE|| depth <0 || depth>= CHUNK_SIZE)
 		return;
-	int x = getX(face, depth, i, j);
-	int y = getY(face, depth, i, j);
-	int z = getZ(face, depth, i, j);
 
 	int id = ( ((m_block_cull_bitmask[face][i][j] >> depth) & 1) > 0) ? type : -1;
 	unsigned int ao = getAOBitmask(face, i, j, depth);
@@ -405,7 +400,7 @@ void Chunk::updateHorizontalMerge(int face, int depth, int i, int j)
 	int x = getX(face, depth, i, j);
 	int y = getY(face, depth, i, j);
 	int z = getZ(face, depth, i, j);
-	updateHorizontalMerge(face, depth, i, j, m_pBlocks[y][z][x].getId());
+	updateHorizontalMerge(face, depth, i, j, x,y,z,m_pBlocks[y][z][x].getBlockTex(face));
 }
 
 void Chunk::horizontalMergeUpdateNegativePortion(int face, int depth, int i, int j, int type, unsigned char _ao, int x, int y, int z, int value)
@@ -413,7 +408,7 @@ void Chunk::horizontalMergeUpdateNegativePortion(int face, int depth, int i, int
 	if (j < 0)
 		return;
 
-	int id = ( ((m_block_cull_bitmask[face][i][j] >> depth) & 1) > 0) ? m_pBlocks[y][z][x].getId() : -1;
+	int id = ( ((m_block_cull_bitmask[face][i][j] >> depth) & 1) > 0) ? m_pBlocks[y][z][x].getBlockTex(face) : -1;
 	unsigned int ao = getAOBitmask(face, i, j, depth);
 	bool same = (type == id && ao ==_ao);
 
@@ -439,7 +434,7 @@ unsigned char Chunk::horizontalMergeUpdatePositivePortion(int face, int depth, i
 	if (j >= CHUNK_SIZE)
 		return 1;
 
-	int id = (((m_block_cull_bitmask[face][i][j] >> depth) & 1) > 0) ? m_pBlocks[y][z][x].getId() : -1;
+	int id = (((m_block_cull_bitmask[face][i][j] >> depth) & 1) > 0) ? m_pBlocks[y][z][x].getBlockTex(face) : -1;
 	unsigned int ao = getAOBitmask(face, i, j, depth);
 	bool same = (type == id && _ao == ao);
 

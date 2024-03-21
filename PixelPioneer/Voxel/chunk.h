@@ -68,11 +68,11 @@ private: // The blocks data
 	void updateAdjacentAO(int x, int y, int z);
 	void updateAOMask(int face, int depth, int i);
 
-	void updateHorizontalMerge(int face, int depth, int i, int j, int type);
+	void updateHorizontalMerge(int face, int depth, int i, int j, int x, int y, int z, int type);
 	void updateHorizontalMerge(int face, int depth, int i, int j);
 	void horizontalMergeUpdateNegativePortion(int face, int depth, int i, int j, int type, unsigned char ao, int x, int y, int z, int value);
 	unsigned char horizontalMergeUpdatePositivePortion(int face, int depth, int i, int j, int type, unsigned char ao, int x, int y, int z);
-	void updateAdjacentHorizontalMerge(int x, int y, int z, int type);
+	void updateAdjacentHorizontalMerge(int x, int y, int z);
 
 	unsigned int getAOBitmask(int face, int i, int j, int depth);
 

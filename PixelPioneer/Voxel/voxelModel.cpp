@@ -56,7 +56,7 @@ void VoxelModel::addQuad(int x, int y, int z, int type, int face, int w, int h, 
 
             buffer.push_back(face + 8 * (uvs[6 * face + t] + 4 * (getAOBit(ao, tri_idx[t]) + 2 * type)));
 
-            if (face == 2|| face == 1|| face == 3)
+            if (face == 4|| face == 1|| face == 5)
                 buffer.push_back(h + w * 65536);
             else 
                 buffer.push_back(w + h * 65536);
@@ -81,7 +81,7 @@ void VoxelModel::addQuad(int x, int y, int z, int type, int face, int w, int h, 
 
             buffer.push_back(face + 8 * (uvs[6 * face + i] + 4 * (getAOBit(ao, tri_idx[i]) + 2 * type)));
 
-            if (face == 2 || face == 1 || face == 3)
+            if (face == 4 || face == 1 || face == 5)
                 buffer.push_back(h + w * 65536);
             else
                 buffer.push_back(w + h * 65536);
