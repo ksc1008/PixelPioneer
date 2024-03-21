@@ -68,7 +68,7 @@ void Chunk::update(float dt, bool createAO)
 {
 	if (getRenderState() == UPDATING)
 		return;
-	//setRenderState(UPDATING);
+	setRenderState(UPDATING);
 	if (m_rendermode == OPTIMAL)
 		createGreedyMesh(createAO);
 	else
@@ -182,9 +182,11 @@ void Chunk::render() {
 	if (state == NOTLOADED)
 		return;
 	if (state == ENDUPDATE) {
+		bind();
+		m_model->renderMesh();
 		finishUpdate();
 	}
-	if (state == UPDATING || state == UPTODATE) {
+	else if (state == UPDATING || state == UPTODATE) {
 		bind();
 		m_model->renderMesh();
 	}

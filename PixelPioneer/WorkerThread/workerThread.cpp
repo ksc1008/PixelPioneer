@@ -18,7 +18,6 @@ WorkerThread::WorkerThread(Channel* parentChannel, int id)
 void WorkerThread::start()
 {
 	m_thread = std::thread(&WorkerThread::run,this);
-	started = true;
 }
 
 void WorkerThread::stop()
@@ -29,11 +28,11 @@ void WorkerThread::stop()
 
 void WorkerThread::run()
 {
-	while (!_halt) {
-		if (currentRequest != nullptr) {	
-			invoke();
-		}
+	started = true;
+	while (currentRequest != nullptr) {
+		invoke();
 	}
+	started = false;
 }
 
 void WorkerThread::invoke()
@@ -48,6 +47,8 @@ void WorkerThread::invoke()
 void WorkerThread::processRequest(Request* rq)
 {
 	currentRequest = rq;
+	if (started == false)
+		start();
 }
 
 Request* WorkerThread::getReqeust()

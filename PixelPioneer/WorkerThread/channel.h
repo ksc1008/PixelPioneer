@@ -6,10 +6,13 @@
 #include <queue>
 
 class WorkerThread;
+class WorkerThreadNonstop;
 class Request;
 
+enum ChannelType{CHUNK_LOAD, CHUNK_UPDATE, ENUM_CHANNELTYPE_MAX};
+
 class Channel {
-	static Channel _chunkUpdateChannel;
+	static Channel* _chunkUpdateChannel[ENUM_CHANNELTYPE_MAX];
 
 	std::mutex availableThreadsStackMutex;
 	std::mutex requestQueueMutex;
@@ -21,10 +24,11 @@ class Channel {
 	std::stack<int> availableThreads;
 
 public:
-	static Channel* GetChunkUpdateChannel() { return &_chunkUpdateChannel; }
+	static Channel& GetChunkLoadChannel() { return *_chunkUpdateChannel[CHUNK_UPDATE]; }
+	static Channel& GetChunkUpdateChannel() { return *_chunkUpdateChannel[CHUNK_LOAD]; }
 
-	Channel();
-	void startChannel();
+	Channel(ChannelType type);
+	void startChannel(int threadNum, bool loopPermanent);
 	int getAvailableChannel();
 	void setChannelAvailable(int channel);
 	void executeRequest(Request* request);

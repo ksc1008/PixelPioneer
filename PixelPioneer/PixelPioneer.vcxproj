@@ -158,6 +158,7 @@
     <ClCompile Include="WorkerThread\chunkUpdateRequest.cpp" />
     <ClCompile Include="WorkerThread\request.cpp" />
     <ClCompile Include="WorkerThread\workerThread.cpp" />
+    <ClCompile Include="WorkerThread\workerThreadNonstop.cpp" />
     <ClCompile Include="World\perlin.cpp" />
     <ClCompile Include="World\world_generator.cpp" />
   </ItemGroup>
@@ -183,6 +184,7 @@
     <ClInclude Include="WorkerThread\chunkUpdateRequest.h" />
     <ClInclude Include="WorkerThread\request.h" />
     <ClInclude Include="WorkerThread\workerThread.h" />
+    <ClInclude Include="WorkerThread\workerThreadNonstop.h" />
     <ClInclude Include="World\perlin.h" />
     <ClInclude Include="World\world_generator.h" />
   </ItemGroup>

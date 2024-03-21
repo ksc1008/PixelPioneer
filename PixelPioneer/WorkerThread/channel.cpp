@@ -1,9 +1,15 @@
 #include "channel.h"
 #include <iostream>
 #include "workerThread.h"
+#include "workerThreadNonstop.h"
 
 const int Channel::THREAD_COUNT = getProperThread();
-Channel Channel::_chunkUpdateChannel;
+Channel c1(CHUNK_LOAD);
+Channel c2(CHUNK_UPDATE);
+
+Channel* Channel::_chunkUpdateChannel[ENUM_CHANNELTYPE_MAX] {
+	&c1,&c2
+};
 
 int getProperThread() {
 	auto tc = std::thread::hardware_concurrency();
@@ -13,19 +19,31 @@ int getProperThread() {
 	return tc;
 }
 
-Channel::Channel()
+Channel::Channel(ChannelType type)
 {
-	std::cout << "THREAD Count: " << THREAD_COUNT << std::endl;
-	startChannel();
+	if (type == CHUNK_LOAD) {
+		startChannel(THREAD_COUNT*4, false);
+	}
+	else if (type == CHUNK_UPDATE) {
+		startChannel(1, true);
+	}
+	else {
+
+	}
 }
 
-void Channel::startChannel()
+void Channel::startChannel(int threadNum, bool loopPermanent)
 {
 	if (started)
 		return;
-	for (int i = 0; i < THREAD_COUNT; i++) {
-		WorkerThread* th = new WorkerThread(this,i);
-		th->start();
+	for (int i = 0; i < threadNum; i++) {
+		WorkerThread* th;
+		if (loopPermanent) { 
+			th = new WorkerThreadNonstop(this, i);
+		}
+		else {
+			th = new WorkerThread(this, i);
+		}
 		threadPool.push_back(th);
 		setChannelAvailable(i);
 	}

@@ -17,6 +17,7 @@ class ChunkLoader
 
 	void loadChunk(int x, int y, int z);
 
+
 	void updateChunk(int x, int y, int z);
 
 	void unloadChunk(int x, int y, int z);
@@ -27,6 +28,7 @@ public:
 	void generateLargeChunk(int x, int y, int z, int n);
 	void renderChunks(GLenum renderFace = GL_FRONT, GLenum renderMode = GL_TRIANGLES);
 	void updateChunks();
+	void loadChunks();
 	void switchMeshUpdateMode();
 	void setAO(bool enabled);
 };

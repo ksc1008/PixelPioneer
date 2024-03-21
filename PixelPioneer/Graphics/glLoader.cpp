@@ -68,7 +68,7 @@ int openWindow()
     int sz = 16;
     cl.setWorldSize(sz, 1, sz);
     cl.generateLargeChunk(0, 0, 0, sz);
-    cl.updateChunks();
+    cl.loadChunks();
     VoxelTexture* vt = new VoxelTexture(*testManifest());
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);

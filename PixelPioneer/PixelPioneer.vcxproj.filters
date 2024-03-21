@@ -99,6 +99,9 @@
     <ClCompile Include="WorkerThread\chunkLoadRequest.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="WorkerThread\workerThreadNonstop.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\graphics.h">
@@ -168,6 +171,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="WorkerThread\chunkUpdateRequest.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="WorkerThread\workerThreadNonstop.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

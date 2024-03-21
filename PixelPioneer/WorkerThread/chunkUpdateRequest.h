@@ -15,7 +15,6 @@ public:
 
 	void execute() {
 		updateChunk();
-		std::cout << "Chunk update end\n";
 	}
 
 private:

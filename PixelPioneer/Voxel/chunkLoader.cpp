@@ -28,10 +28,9 @@ void ChunkLoader::generateLargeChunk(int x, int y, int z, int n) {
 					}
 				}
 			}
-			m_chunks[0][z + j][x + i]->updateAllMasks();
+			//m_chunks[0][z + j][x + i]->updateAllMasks();
 		}
 	}
-
 }
 
 void ChunkLoader::setWorldSize(int w, int h, int d)
@@ -93,23 +92,29 @@ void ChunkLoader::unloadChunk(int x, int y, int z)
 
 void ChunkLoader::updateChunks()
 {
-	auto startTime = glfwGetTime();
-	unsigned int count = 0;
+	for (int i = 0; i < m_height; i++) {
+		for (int j = 0; j < m_depth; j++) {
+			for (int k = 0; k < m_width; k++) {
+				if (loaded[i][j][k]) {
+					auto rq = new ChunkUpdateRequest(*m_chunks[i][j][k],true);
+					Channel::GetChunkLoadChannel().executeRequest(rq);
+				}
+			}
+		}
+	}
+}
+
+void ChunkLoader::loadChunks() {
 	for (int i = 0; i < m_height; i++) {
 		for (int j = 0; j < m_depth; j++) {
 			for (int k = 0; k < m_width; k++) {
 				if (loaded[i][j][k]) {
 					auto rq = new ChunkLoadRequest(*m_chunks[i][j][k]);
-					Channel::GetChunkUpdateChannel()->executeRequest(rq);
-					//m_chunks[i][j][k]->update(0,m_ao_enabled);
+					Channel::GetChunkLoadChannel().executeRequest(rq);
 				}
 			}
 		}
 	}
-
-
-	auto endTime = glfwGetTime();
-	//Debugger::getInstance()->writeLine("updated chunks. elapsed time: ",(endTime-startTime)*1000,"ms",", tris: ",count);
 }
 
 void ChunkLoader::switchMeshUpdateMode() {
