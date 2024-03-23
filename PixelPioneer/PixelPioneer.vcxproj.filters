@@ -102,6 +102,12 @@
     <ClCompile Include="WorkerThread\workerThreadNonstop.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Voxel\blockDataStorage.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Voxel\texturemap.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\graphics.h">
@@ -176,6 +182,12 @@
     <ClInclude Include="WorkerThread\workerThreadNonstop.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Voxel\blockDataStorage.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel\texturemap.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\cobblestone.png">
@@ -192,5 +204,6 @@
     <None Include="Shaders\vertex.glsl" />
     <None Include="Shaders\voxel_fragment.glsl" />
     <None Include="Shaders\voxel_vertex.glsl" />
+    <None Include="Shaders\voxel_vertex_origin.glsl" />
   </ItemGroup>
 </Project>

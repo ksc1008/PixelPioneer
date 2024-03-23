@@ -25,6 +25,7 @@ const unsigned int SCR_HEIGHT = 720;
 GLFWwindow* window = nullptr;
 bool lineRendering = false;
 bool _ao = true;
+bool _flat = false;
 
 int initiateGL() {
     glfwInit();
@@ -65,8 +66,8 @@ ChunkLoader cl;
 int openWindow()
 {
     Light light = Light(DIRECTIONAL,glm::vec3(-1,-4,-2),0.9);
-    int sz = 16;
-    cl.setWorldSize(sz, 1, sz);
+    int sz = 32;
+    cl.setWorldSize(sz, 2, sz);
     cl.generateLargeChunk(0, 0, 0, sz);
     cl.loadChunks();
     VoxelTexture* vt = new VoxelTexture(*testManifest());
@@ -111,6 +112,7 @@ void processInput(GLFWwindow* window)
     static bool oneTime_1 = false;
     static bool oneTime_2 = false;
     static bool oneTime_3 = false;
+    static bool oneTime_4 = false;
     static float time = glfwGetTime();
     float dt = glfwGetTime()- time;
     time = glfwGetTime();
@@ -161,6 +163,18 @@ void processInput(GLFWwindow* window)
     }
     else {
         oneTime_3 = false;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+        if (!oneTime_4) {
+            _flat = !_flat;
+            ShaderLoader::getInstance()->SetFlatMode(_flat);
+
+            oneTime_4 = true;
+        }
+    }
+    else {
+        oneTime_4 = false;
     }
 }
 

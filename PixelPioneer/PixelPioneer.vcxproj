@@ -201,6 +201,7 @@
     <None Include="Shaders\voxel_fragment.glsl" />
     <None Include="Shaders\vertex.glsl" />
     <None Include="Shaders\voxel_vertex.glsl" />
+    <None Include="Shaders\voxel_vertex_origin.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

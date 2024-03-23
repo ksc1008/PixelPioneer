@@ -14,20 +14,39 @@ void ChunkLoader::generateChunks(int w, int h, int d)
 void ChunkLoader::generateLargeChunk(int x, int y, int z, int n) {
 	WorldGenerator gen;
 	auto landscape = gen.createLandscape(n * Chunk::CHUNK_SIZE, 10);
+
+	for (int i = 0; i < m_height - 1; i++) {
+		for(int j = 0;j<m_width;j++){
+			for (int k = 0; k < m_depth; k++) {
+				if (m_chunks[i][k][j] != nullptr)
+					unloadChunk(j, i, k);
+
+				loadChunk(j, i, k);
+				for (int t1 = 0; t1 < Chunk::CHUNK_SIZE; t1++) {
+					for (int t2 = 0; t2 < Chunk::CHUNK_SIZE; t2++) {
+						for (int t3 = 0; t3 < Chunk::CHUNK_SIZE; t3++) {
+							m_chunks[i][k][j]->setBlock(0, t1, t2, t3, true);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			if (m_chunks[0][z + j][x + i] != nullptr)
-				unloadChunk(x + i, 0, z + j);
+			if (m_chunks[m_height - 1][z + j][x + i] != nullptr)
+				unloadChunk(x + i, m_height - 1, z + j);
 
-			loadChunk(x + i, 0, z + j);
+			loadChunk(x + i, m_height - 1, z + j);
 
 			for (int land_i = 0; land_i < Chunk::CHUNK_SIZE; land_i++) {
 				for (int land_j = 0; land_j < Chunk::CHUNK_SIZE; land_j++) {
 					for (int k = 0; k <= landscape[Chunk::CHUNK_SIZE*j + land_j][Chunk::CHUNK_SIZE * i + land_i]; k++) {
 						if(k== landscape[Chunk::CHUNK_SIZE * j + land_j][Chunk::CHUNK_SIZE * i + land_i])
-							m_chunks[0][z + j][x + i]->setBlock(3, land_i, k, land_j, true);
+							m_chunks[m_height - 1][z + j][x + i]->setBlock(3, land_i, k, land_j, true);
 						else
-							m_chunks[0][z + j][x + i]->setBlock(2, land_i, k, land_j, true);
+							m_chunks[m_height - 1][z + j][x + i]->setBlock(2, land_i, k, land_j, true);
 					}
 				}
 			}
@@ -58,7 +77,7 @@ void ChunkLoader::setWorldSize(int w, int h, int d)
 
 
 void ChunkLoader::loadChunk(int x, int y, int z) {
-	m_chunks[y][z][x] = new Chunk(x,y,z);
+	m_chunks[y][z][x] = new Chunk(x - m_width/2,y,z - m_depth/2);
 	loaded[y][z][x] = true;
 }
 

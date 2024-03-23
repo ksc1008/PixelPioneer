@@ -8,7 +8,7 @@ class ChunkLoader
 	int m_height, m_width, m_depth;
 	Chunk**** m_chunks;
 	bool*** loaded;
-	bool fast = false;
+	bool fast = true;
 	bool m_ao_enabled = true;
 
 

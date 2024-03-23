@@ -18,7 +18,7 @@ class Chunk {
 	std::mutex meshStateMutex;
 	int m_chunkX, m_chunkY, m_chunkZ;
 	VoxelModel* m_model;
-	RenderMode m_rendermode = OPTIMAL;
+	RenderMode m_rendermode = FAST;
 	RenderState m_currentRenderState = NOTLOADED;
 	bool m_ao_built = false;
 	

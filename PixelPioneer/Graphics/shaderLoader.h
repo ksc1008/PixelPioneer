@@ -10,12 +10,17 @@ public:
 		return &Instance;
 	}
 
+	void SetFlatMode(bool active);
+
 	GLShader* getDefaultShader();
 
 private:
+	bool useFlatShader = false;
+
 	void initialize();
 	bool initialized = false;
 	static ShaderLoader Instance;
-	GLShader* defaultShader;	
+	GLShader* defaultShader;
+	GLShader* flatShader;
 };
 

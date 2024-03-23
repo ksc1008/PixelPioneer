@@ -192,8 +192,12 @@ void Chunk::render() {
 
 void Chunk::bind() {
 	m_model->bindVAO();
+	//ShaderLoader::getInstance()->getDefaultShader()->setModelTransform(glm::translate(glm::mat4(1.0f),
+	//	glm::vec3(CHUNK_SIZE * m_chunkX, CHUNK_SIZE * m_chunkY, CHUNK_SIZE * m_chunkZ) * 0.66f));
+	
+	ShaderLoader::getInstance()->getDefaultShader()->setFloat("land_y", CHUNK_SIZE * (m_chunkY));
 	ShaderLoader::getInstance()->getDefaultShader()->setModelTransform(glm::translate(glm::mat4(1.0f),
-		glm::vec3(CHUNK_SIZE * m_chunkX, CHUNK_SIZE * m_chunkY, CHUNK_SIZE * m_chunkZ) * 0.66f));
+		glm::vec3(CHUNK_SIZE * m_chunkX, CHUNK_SIZE * m_chunkY, CHUNK_SIZE * m_chunkZ)));
 }
 
 void Chunk::updateAllMasks()
