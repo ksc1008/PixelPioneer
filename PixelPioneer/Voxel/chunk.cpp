@@ -1,15 +1,18 @@
 #include "chunk.h"
+#include "chunkLoader.h"
 #include "../Graphics/shaderLoader.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include "../debug.h"
 #include"tempStorage.h"
+
+// #define ENABLE_MESHING
 
 const short Chunk::faceOffsets[][3] = {{0,-1,0},{0,1,0},{0,0,-1},{0,0,1},{-1,0,0},{1,0,0}};
 const short Chunk::xPerFace[][3] = { {0,0,1},{0,0,1},{0,1,0},{0,1,0},{1,0,0},{1,0,0} };
 const short Chunk::yPerFace[][3] = { {1,0,0},{1,0,0},{0,0,1},{0,0,1},{0,1,0},{0,1,0} };
 const short Chunk::zPerFace[][3] = { {0,1,0},{0,1,0},{1,0,0},{1,0,0},{0,0,1},{0,0,1} };
 
-Chunk::Chunk(int x, int y, int z)
+Chunk::Chunk(int x, int y, int z, int posX, int posY, int posZ, ChunkLoader& parent) :_parentLoader(parent)
 {
 	m_pBlocks = new Block **[CHUNK_SIZE];
 	for (int i = 0; i < CHUNK_SIZE; i++) {
@@ -45,10 +48,13 @@ Chunk::Chunk(int x, int y, int z)
 		}
 	}
 
-	m_chunkX = x;
-	m_chunkY = y;
-	m_chunkZ = z;
+	m_posX = posX;
+	m_posY = posY;
+	m_posZ = posZ;
 
+	m_X = x;
+	m_Y = y;
+	m_Z = z;
 	m_model = new VoxelModel();
 }
 
@@ -195,9 +201,9 @@ void Chunk::bind() {
 	//ShaderLoader::getInstance()->getDefaultShader()->setModelTransform(glm::translate(glm::mat4(1.0f),
 	//	glm::vec3(CHUNK_SIZE * m_chunkX, CHUNK_SIZE * m_chunkY, CHUNK_SIZE * m_chunkZ) * 0.66f));
 	
-	ShaderLoader::getInstance()->getDefaultShader()->setFloat("land_y", CHUNK_SIZE * (m_chunkY));
+	ShaderLoader::getInstance()->getDefaultShader()->setFloat("land_y", CHUNK_SIZE * (m_posY));
 	ShaderLoader::getInstance()->getDefaultShader()->setModelTransform(glm::translate(glm::mat4(1.0f),
-		glm::vec3(CHUNK_SIZE * m_chunkX, CHUNK_SIZE * m_chunkY, CHUNK_SIZE * m_chunkZ)));
+		glm::vec3(CHUNK_SIZE * m_posX, CHUNK_SIZE * m_posY, CHUNK_SIZE * m_posZ)));
 }
 
 void Chunk::updateAllMasks()
@@ -207,8 +213,11 @@ void Chunk::updateAllMasks()
 			for (int j = 0; j < CHUNK_SIZE; j++) {
 				updateCullingMask(f, i, j);
 				updateAOMask(f, i, j);
+
+#ifdef ENABLE_MESHING
 				for(int d = 0;d<CHUNK_SIZE;d++)
 					updateHorizontalMerge(f, d, i, j);
+#endif
 			}
 		}
 	}
@@ -243,25 +252,112 @@ void Chunk::SetRenderMode(RenderMode mode)
 	}
 }
 
+const bitType Chunk::getExsistanceBitmask(int face, int i, int j) {
+
+	if (i < 0) {
+		int x = m_X - xPerFace[face][1];
+		int y = m_Y - yPerFace[face][1];
+		int z = m_Z - zPerFace[face][1];
+
+		return _parentLoader.getAdjacentExistanceBitmask(x, y, z, face, CHUNK_SIZE - 1, j);
+	}
+	if (i >= CHUNK_SIZE) {
+		int x = m_X + xPerFace[face][1];
+		int y = m_Y + yPerFace[face][1];
+		int z = m_Z + zPerFace[face][1];
+
+		return _parentLoader.getAdjacentExistanceBitmask(x, y, z, face, 0, j);
+	}
+	if (j < 0) {
+		int x = m_X - xPerFace[face][2];
+		int y = m_Y - yPerFace[face][2];
+		int z = m_Z - zPerFace[face][2];
+
+		return _parentLoader.getAdjacentExistanceBitmask(x, y, z, face, i, CHUNK_SIZE - 1);
+	}
+	if (j >= CHUNK_SIZE) {
+		int x = m_X + xPerFace[face][2];
+		int y = m_Y + yPerFace[face][2];
+		int z = m_Z + zPerFace[face][2];
+
+		return _parentLoader.getAdjacentExistanceBitmask(x, y, z, face, i, 0);
+	}
+
+	return m_existance_bitmask[face][i][j];
+}
+
+void Chunk::setBorderBlockEnabled(bool enabled, int face, int i, int j, bool pendUpdate)
+{
+	bitType bit;
+
+	if (face % 2 == 0)
+		bit = (bitType)1 << (CHUNK_SIZE + 1);
+	else
+		bit = (bitType)1;
+
+	m_existance_bitmask[face][i][j] |= bit;
+	if (!enabled)
+		m_existance_bitmask[face][i][j] ^= bit;
+
+	if (!pendUpdate) {
+		updateCullingMask(face, i, j);
+	}
+}
+
 void Chunk::setBlock(int type, int x, int y, int z, bool pendUpdate)
 {
 	needRefreshMesh = true;
 
 	m_pBlocks[y][z][x].setId(type);
-	m_existance_bitmask[0][z][x] |= (bitType)1 << y;
-	m_existance_bitmask[1][z][x] |= (bitType)1 << y;
-	m_existance_bitmask[2][x][y] |= (bitType)1 << z;
-	m_existance_bitmask[3][x][y] |= (bitType)1 << z;
-	m_existance_bitmask[4][y][z] |= (bitType)1 << x;
-	m_existance_bitmask[5][y][z] |= (bitType)1 << x;
+	updateExsistanceBitmask(x, y, z, true, pendUpdate);
 
 	if (!pendUpdate) {
 		updateAdjacentCullingMask(x,y,z);
 		updateAdjacentAO(x, y, z); 
+#ifdef ENABLE_MESHING
 		updateAdjacentHorizontalMerge(x, y, z);
+#endif
 	}
 	else {
 		needRefreshMask = true;
+	}
+}
+
+void Chunk::updateExsistanceBitmask(int x, int y, int z, bool enabled, bool pendUpdate)
+{
+	m_existance_bitmask[0][z][x] |= (bitType)1 << (y + 1);
+	m_existance_bitmask[1][z][x] |= (bitType)1 << (y + 1);
+	m_existance_bitmask[2][x][y] |= (bitType)1 << (z + 1);
+	m_existance_bitmask[3][x][y] |= (bitType)1 << (z + 1);
+	m_existance_bitmask[4][y][z] |= (bitType)1 << (x + 1);
+	m_existance_bitmask[5][y][z] |= (bitType)1 << (x + 1);
+
+	if (!enabled) {
+		m_existance_bitmask[0][z][x] ^= (bitType)1 << (y + 1);
+		m_existance_bitmask[1][z][x] ^= (bitType)1 << (y + 1);
+		m_existance_bitmask[2][x][y] ^= (bitType)1 << (z + 1);
+		m_existance_bitmask[3][x][y] ^= (bitType)1 << (z + 1);
+		m_existance_bitmask[4][y][z] ^= (bitType)1 << (x + 1);
+		m_existance_bitmask[5][y][z] ^= (bitType)1 << (x + 1);
+	}
+
+	if (x == 0) {
+		_parentLoader.updateAdjacentChunkExistanceBitmask(m_X, m_Y, m_Z, 4, y, z, enabled, pendUpdate);
+	}
+	else if (x == CHUNK_SIZE - 1) {
+		_parentLoader.updateAdjacentChunkExistanceBitmask(m_X, m_Y, m_Z, 5, y, z, enabled, pendUpdate);
+	}
+	if (y == 0) {
+		_parentLoader.updateAdjacentChunkExistanceBitmask(m_X, m_Y, m_Z, 0, z, x, enabled, pendUpdate);
+	}
+	else if (y == CHUNK_SIZE - 1) {
+		_parentLoader.updateAdjacentChunkExistanceBitmask(m_X, m_Y, m_Z, 1, z, x, enabled, pendUpdate);
+	}
+	if (z == 0) {
+		_parentLoader.updateAdjacentChunkExistanceBitmask(m_X, m_Y, m_Z, 2, x, y, enabled, pendUpdate);
+	}
+	else if (z == CHUNK_SIZE - 1) {
+		_parentLoader.updateAdjacentChunkExistanceBitmask(m_X, m_Y, m_Z, 3, x, y, enabled, pendUpdate);
 	}
 }
 
@@ -275,8 +371,9 @@ void Chunk::updateCullingMask(int face, int i, int j)
 	else {
 		right_shift = (m_existance_bitmask[face - 1][i][j]>>1);
 	}
-	m_block_cull_bitmask[face][i][j] = left_shift & (left_shift ^ right_shift);
+	m_block_cull_bitmask[face][i][j] = (left_shift & (left_shift ^ right_shift))>>1;
 }
+
 
 void Chunk::updateAdjacentCullingMask(int x, int y, int z)
 {
@@ -290,6 +387,7 @@ void Chunk::updateAdjacentCullingMask(int x, int y, int z)
 
 void Chunk::updateAdjacentHorizontalMerge(int x, int y, int z)
 {
+	return;
 	updateHorizontalMerge(0, y, z, x);
 	updateHorizontalMerge(1, y, z, x);
 	updateHorizontalMerge(2, z, x, y);
@@ -328,8 +426,9 @@ void Chunk::updateAdjacentAO(int x, int y, int z)
 
 void Chunk::updateAOMask(int face, int i, int j)
 {
-	if (i < 0 || i >= CHUNK_SIZE || j < 0 || j >= CHUNK_SIZE)
+	if (i < 0 || i >= CHUNK_SIZE || j < 0 || j >= CHUNK_SIZE) {
 		return;
+	}
 	bitType a0,a1,a2,a3;
 	bitType c0,c1,c2,c3;
 	bitType r0,r1,r2,r3;
@@ -357,10 +456,10 @@ void Chunk::updateAOMask(int face, int i, int j)
 		c3 = getExsistanceBitmask(face, i - 1, j + 1) >> 1;
 	}
 
-	r0 = a3 | a0 | c0;
-	r1 = a0 | a1 | c1;
-	r2 = a1 | a2 | c2;
-	r3 = a2 | a3 | c3;
+	r0 = (a3 | a0 | c0)>>1;
+	r1 = (a0 | a1 | c1)>>1;
+	r2 = (a1 | a2 | c2)>>1;
+	r3 = (a2 | a3 | c3)>>1;
 	for (int x = 0; x < 4; x++) {
 		m_ao_bitmask[x][face][i][j] = 0u;
 		m_ao_bitmask[x][face][i][j] = 0u;
@@ -377,6 +476,10 @@ void Chunk::updateAOMask(int face, int i, int j)
 			m_ao_bitmask[x][face][i][j] |= (bit3 << (y * 4 + 3));
 		}
 	}
+}
+
+void Chunk::updateAdjacentChunkAO(int face, const Chunk& adjacent)
+{
 }
 
 void Chunk::updateHorizontalMerge(int face, int depth, int i, int j, int x, int y, int z, int type)
@@ -466,21 +569,7 @@ void Chunk::setBlockEnabled(bool enabled, int x, int y, int z, bool pendUpdate)
 	needRefreshMesh = true;
 	m_pBlocks[y][z][x].setActive(enabled);
 
-	m_existance_bitmask[0][z][x] |= (bitType)1 << y;
-	m_existance_bitmask[1][z][x] |= (bitType)1 << y;
-	m_existance_bitmask[2][x][y] |= (bitType)1 << z;
-	m_existance_bitmask[3][x][y] |= (bitType)1 << z;
-	m_existance_bitmask[4][y][z] |= (bitType)1 << x;
-	m_existance_bitmask[5][y][z] |= (bitType)1 << x;
-
-	if (!enabled) {
-		m_existance_bitmask[0][z][x] ^= (bitType)1 << y;
-		m_existance_bitmask[1][z][x] ^= (bitType)1 << y;
-		m_existance_bitmask[2][x][y] ^= (bitType)1 << z;
-		m_existance_bitmask[3][x][y] ^= (bitType)1 << z;
-		m_existance_bitmask[4][y][z] ^= (bitType)1 << x;
-		m_existance_bitmask[5][y][z] ^= (bitType)1 << x;
-	}
+	updateExsistanceBitmask(x, y, z, enabled, pendUpdate);
 
 	if (!pendUpdate) {
 		updateAdjacentCullingMask(x, y, z);

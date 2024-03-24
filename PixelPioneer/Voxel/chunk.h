@@ -9,27 +9,31 @@
 enum RenderMode {FAST, OPTIMAL};
 enum RenderState{UPDATING, UPTODATE, ENDUPDATE, NEEDUPDATE, NOTLOADED};
 typedef uint_fast64_t bitType;
+class ChunkLoader;
 
 class Chunk {
-	static const short faceOffsets[6][3];
 	static const short xPerFace[6][3];
 	static const short yPerFace[6][3];
 	static const short zPerFace[6][3];
 	std::mutex meshStateMutex;
-	int m_chunkX, m_chunkY, m_chunkZ;
+	int m_posX, m_posY, m_posZ;
+	int m_X, m_Y, m_Z;
 	VoxelModel* m_model;
 	RenderMode m_rendermode = FAST;
 	RenderState m_currentRenderState = NOTLOADED;
 	bool m_ao_built = false;
+	class ChunkLoader& _parentLoader;
 	
 public:
+	static const short faceOffsets[6][3];
 	static const int CHUNK_SIZE = 16;
-	Chunk(int x, int y, int z);
+	Chunk(int x, int y, int z, int posX, int posY, int posZ, ChunkLoader& parent);
 	~Chunk();
 	void update(float dt, bool createAO = true);
 	void finishUpdate();
 	void render();
 
+	void setBorderBlockEnabled(bool enabled, int face, int i, int j, bool pendUpdate = false);
 	void setBlock(int type, int x, int y, int z, bool pendUpdate = false);
 	void setBlockEnabled(bool enabled, int x, int y, int z, bool pendUpdate = false);
 	void bind();
@@ -41,10 +45,7 @@ public:
 	int getPolygonNumber();
 	void SetRenderMode(RenderMode mode);
 
-	const bitType getExsistanceBitmask(int face, int i,int j) { 
-		if (i < 0 || i >= CHUNK_SIZE || j < 0 || j >= CHUNK_SIZE)
-			return 0;
-		return m_existance_bitmask[face][i][j]; }
+	const bitType getExsistanceBitmask(int face, int i, int j);
 	const bitType* getAOBitmask(int face, int depth, int corner) { return m_ao_bitmask[corner][face][depth]; }
 	const bitType* getCullingBitmask(int face, int depth) { return m_block_cull_bitmask[face][depth]; }
 private: // The blocks data
@@ -63,10 +64,13 @@ private: // The blocks data
 	void createFastMesh(bool createAO);
 	void createGreedyMesh(bool createAO);
 
+	void updateExsistanceBitmask(int x, int y, int z, bool enabled, bool pendUpdate);
 	void updateCullingMask(int face, int depth, int j);
 	void updateAdjacentCullingMask(int x, int y, int z);
 	void updateAdjacentAO(int x, int y, int z);
 	void updateAOMask(int face, int depth, int i);
+
+	void updateAdjacentChunkAO(int face, const Chunk& adjacent);
 
 	void updateHorizontalMerge(int face, int depth, int i, int j, int x, int y, int z, int type);
 	void updateHorizontalMerge(int face, int depth, int i, int j);
