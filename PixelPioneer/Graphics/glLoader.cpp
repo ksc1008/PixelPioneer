@@ -133,15 +133,15 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         ControlManager::getInstance()->move(0, -1, 0, dt);
 
-    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-        if (!oneTime_1) {
-            cl.switchMeshUpdateMode();
-            oneTime_1 = true;
-        }
-    }
-    else {
-        oneTime_1 = false;
-    }
+    //if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+    //    if (!oneTime_1) {
+    //        cl.switchMeshUpdateMode();
+    //        oneTime_1 = true;
+    //    }
+    //}
+    //else {
+    //    oneTime_1 = false;
+    //}
 
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
         if (!oneTime_2) {

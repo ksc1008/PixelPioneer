@@ -26,13 +26,17 @@ Chunk::Chunk(int x, int y, int z, int posX, int posY, int posZ, ChunkLoader& par
 	for (int i = 0; i < 6; i++) {
 		m_existance_bitmask[i] = new bitType *[CHUNK_SIZE];
 		m_block_cull_bitmask[i] = new bitType *[CHUNK_SIZE];
+#ifdef ENABLE_MESHING
 		m_horizontal_merge[i] = new unsigned char** [CHUNK_SIZE];
+#endif
 		for(c = 0;c<4;c++)
 			m_ao_bitmask[c][i] = new bitType *[CHUNK_SIZE];
 		for (int j = 0; j < CHUNK_SIZE; j++) {
 			m_existance_bitmask[i][j] = new bitType[CHUNK_SIZE];
 			m_block_cull_bitmask[i][j] = new bitType[CHUNK_SIZE];
+#ifdef ENABLE_MESHING
 			m_horizontal_merge[i][j] = new unsigned char* [CHUNK_SIZE];
+#endif
 			for (c = 0; c < 4; c++) {
 				m_ao_bitmask[c][i][j] = new bitType[CHUNK_SIZE];
 				memset(m_ao_bitmask[c][i][j], 0, sizeof(bitType) * CHUNK_SIZE);
@@ -40,10 +44,12 @@ Chunk::Chunk(int x, int y, int z, int posX, int posY, int posZ, ChunkLoader& par
 			memset(m_existance_bitmask[i][j], 0, sizeof(bitType) * CHUNK_SIZE);
 			memset(m_block_cull_bitmask[i][j], 0, sizeof(bitType) * CHUNK_SIZE);
 			for (int k = 0; k < CHUNK_SIZE; k++) {
+#ifdef ENABLE_MESHING
 				m_horizontal_merge[i][j][k] = new unsigned char[CHUNK_SIZE];
 				for (int t = 0; t < CHUNK_SIZE; t++) {
 					m_horizontal_merge[i][j][k][t] = CHUNK_SIZE - t;
-				}
+			}
+#endif // ENABLE_MESHING
 			}
 		}
 	}
@@ -128,7 +134,12 @@ void Chunk::createGreedyMesh(bool createAO) {
 				int height = 1;
 				int i = min_width_i;
 				const int j = min_width_j;
+#ifdef ENABLE_MESHING
 				const int width = m_horizontal_merge[f][depth][i][j];
+#else
+				const int width = 1;
+#endif // ENABLE_MESHING
+
 				const int x = getX(f, depth, i, j);
 				const int y = getY(f, depth, i, j);
 				const int z = getZ(f, depth, i, j);
@@ -139,7 +150,9 @@ void Chunk::createGreedyMesh(bool createAO) {
 				if (mergeType == -1) {
 					for (; i < CHUNK_SIZE; i++) {
 						if ((((m_block_cull_bitmask[f][i][j] >> depth) & 1) > 0)
+#ifdef ENABLE_MESHING
 							|| m_horizontal_merge[f][depth][i][j] != width
+#endif
 							|| baked_mesh_widths[i] != j) {
 							break;
 						}
@@ -155,10 +168,12 @@ void Chunk::createGreedyMesh(bool createAO) {
 						dy += yPerFace[f][1];
 						dz += zPerFace[f][1];
 
-						if ((((m_block_cull_bitmask[f][i][j] >> depth) & 1) == 0)
-							|| getAOBitmask(f, i, j, depth) != mergeAO
-							|| m_pBlocks[dy][dz][dx].getBlockTex(f) != mergeType
+						if ((((getAOBitmask(f, i, j, depth) != mergeAO
+#ifdef ENABLE_MESHING
 							|| m_horizontal_merge[f][depth][i][j] != width
+#endif
+							|| m_pBlocks[dy][dz][dx].getBlockTex(f) != mergeType
+							|| m_block_cull_bitmask[f][i][j] >> depth) & 1) == 0)
 							|| baked_mesh_widths[i] != j) {
 							break;
 						}

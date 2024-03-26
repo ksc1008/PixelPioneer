@@ -1,5 +1,6 @@
 #pragma once
 #include<iostream>
+#include <string>
 
 #ifdef _DEBUG
 #define writeLine( ... ) \
@@ -7,6 +8,7 @@
 #else
 #define writeLine(x) _nothing()
 #endif
+
 
 class Debugger {
     static Debugger debuggerInstance;
@@ -24,17 +26,26 @@ class Debugger {
     }
 public:
 	static Debugger* getInstance() { return &debuggerInstance; }
+    int substrCount;
 
+    Debugger() {
+        std::cout.sync_with_stdio(false);
+        substrCount = strlen(__FILE__)-7;
+    }
 
     template<typename T, typename... Args>
     void _wl(int line, const char* file, const char* function, std::initializer_list<T> list)
     {
+        char moduleName[256];
+        int len = strlen(file);
+        strncpy_s(moduleName, sizeof(moduleName), file + substrCount, len - substrCount);
+
         std::cout << "debug: ";
         for (auto elem : list)
         {
             std::cout << elem;
         }
-        std::cout << "\n    by " << function << " in " << file << ":" << line << "\n";
+        std::cout << "  by " << function << " in " << moduleName << ":" << line << "\n";
     }
 
     template<typename T, typename ...Args>
@@ -48,7 +59,11 @@ public:
     template<typename T>
     void _wl(int line, const char* file, const char* function, T t)
     {
-        std::cout << "debug: " << t << "\n    by " << function << " in " << file << ":" << line << "\n";
+        char moduleName[256];
+        int len = strlen(file);
+        strncpy_s(moduleName, sizeof(moduleName), file + substrCount, len - substrCount);
+
+        std::cout << "debug: " << t << "  by " << function << " in " << moduleName << ":" << line << "\n";
     }
     void _nothing(){}
 };
