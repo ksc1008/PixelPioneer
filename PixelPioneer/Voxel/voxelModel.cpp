@@ -99,7 +99,10 @@ void VoxelModel::endBuild()
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(unsigned int) * buffer.size(), &buffer.front(), GL_STATIC_DRAW);
+    if(buffer.size()==0)
+        glBufferData(GL_ARRAY_BUFFER, sizeof(unsigned int) * buffer.size(), nullptr, GL_STATIC_DRAW);
+    else
+        glBufferData(GL_ARRAY_BUFFER, sizeof(unsigned int) * buffer.size(), &buffer.front(), GL_STATIC_DRAW);
 
     // position attribute
     glVertexAttribIPointer(0, 3, GL_UNSIGNED_INT, 3 * sizeof(unsigned int), (void*)0);

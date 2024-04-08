@@ -6,12 +6,16 @@
 #include "../WorkerThread/chunkLoadRequest.h"
 #include "../WorkerThread/channel.h"
 
+// #define OLD_GENERATOR
+
 void ChunkLoader::generateChunks(int w, int h, int d)
 {
 	
 }
 
 void ChunkLoader::generateLargeChunk(int x, int y, int z, int n) {
+
+#ifdef OLD_GENERATOR
 	WorldGenerator gen;
 	auto landscape = gen.createLandscape(n * Chunk::CHUNK_SIZE, 10);
 
@@ -43,6 +47,44 @@ void ChunkLoader::generateLargeChunk(int x, int y, int z, int n) {
 			}
 		}
 	}
+#else
+	PerlinNoise p;
+	auto noiseMap = p.GenerateMap3D(m_width * Chunk::CHUNK_SIZE,
+		m_height * Chunk::CHUNK_SIZE, m_depth * Chunk::CHUNK_SIZE, 1, 4, 0.5f, 4, 10, 10, 10, 6, 32);
+
+	bool adjacent_up = false;
+
+	for (int j = 0; j < m_width; j++) {
+		for (int k = 0; k < m_depth; k++) {
+			for (int x = 0; x < Chunk::CHUNK_SIZE; x++) {
+				for (int z = 0; z < Chunk::CHUNK_SIZE; z++) {
+					adjacent_up = false;
+					for (int i = m_height-1; i >= 0; i--) {
+						for (int y = Chunk::CHUNK_SIZE - 1; y >= 0; y--) {
+							if (noiseMap[Chunk::CHUNK_SIZE * i + y][Chunk::CHUNK_SIZE * k + z][Chunk::CHUNK_SIZE * j + x] > 0.5) {
+								if (adjacent_up) {
+									m_chunks[i][k][j]->setBlock(2, x, y, z, true);
+								}
+								else {
+									m_chunks[i][k][j]->setBlock(3, x, y, z, true);
+									adjacent_up = true;
+								}
+							}
+							else
+								adjacent_up = false;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < m_height * Chunk::CHUNK_SIZE; i++) {
+		delete[] noiseMap[i];
+	}
+	delete noiseMap;
+
+#endif
 }
 
 

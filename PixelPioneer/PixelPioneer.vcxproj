@@ -156,6 +156,7 @@
     <ClCompile Include="Voxel\chunk.cpp" />
     <ClCompile Include="Voxel\texture.cpp" />
     <ClCompile Include="WorkerThread\channel.cpp" />
+    <ClCompile Include="WorkerThread\chunkCreateRequest.cpp" />
     <ClCompile Include="WorkerThread\chunkLoadRequest.cpp" />
     <ClCompile Include="WorkerThread\chunkUpdateRequest.cpp" />
     <ClCompile Include="WorkerThread\request.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="Voxel\chunk.h" />
     <ClInclude Include="Voxel\texture.h" />
     <ClInclude Include="WorkerThread\channel.h" />
+    <ClInclude Include="WorkerThread\chunkCreateRequest.h" />
     <ClInclude Include="WorkerThread\chunkLoadRequest.h" />
     <ClInclude Include="WorkerThread\chunkUpdateRequest.h" />
     <ClInclude Include="WorkerThread\request.h" />

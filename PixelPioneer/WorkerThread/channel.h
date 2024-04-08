@@ -19,6 +19,7 @@ class Channel {
 
 	const static int THREAD_COUNT;
 	bool started = false;
+	int channel_count;
 	std::vector<class WorkerThread*> threadPool;
 	std::queue<class Request*> requestQueue;
 	std::stack<int> availableThreads;
@@ -32,6 +33,7 @@ public:
 	int getAvailableChannel();
 	void setChannelAvailable(int channel);
 	void executeRequest(Request* request);
+	void waitAll();
 	~Channel();
 
 private:

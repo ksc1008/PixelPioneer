@@ -18,6 +18,10 @@ private:
     double grad(int hash, double x, double y, double z);
 
 public:
+    float*** GenerateMap3D(int width, int height, int depth, float scale,
+        int octaves, float persistance, float lacunarity, float xOrg, float yOrg, float zOrg,
+        int minHeight, float scaleHeight);
+    float** GenerateMap(int width, int height, float scale, float octaves, float persistance, float lacunarity, float xOrg, float yOrg);
     PerlinNoise();
     PerlinNoise(unsigned int seed);
 

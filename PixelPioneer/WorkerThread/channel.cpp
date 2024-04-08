@@ -23,12 +23,14 @@ Channel::Channel(ChannelType type)
 {
 	if (type == CHUNK_LOAD) {
 		startChannel(THREAD_COUNT*4, false);
+		channel_count = THREAD_COUNT * 4;
 	}
 	else if (type == CHUNK_UPDATE) {
 		startChannel(1, true);
+		channel_count = 1;
 	}
 	else {
-
+		channel_count = 0;
 	}
 }
 
@@ -83,6 +85,13 @@ void Channel::executeRequest(Request* request)
 	}
 	else {
 		enqueueRequest(request);
+	}
+}
+
+void Channel::waitAll()
+{
+	while (availableThreads.size() < channel_count) {
+
 	}
 }
 
